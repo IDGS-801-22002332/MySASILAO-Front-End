@@ -1,0 +1,491 @@
+:root {
+    --nav-height: 65px;
+    --footer-height: 50px;
+}
+
+.layout-wrapper {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sucursales-nav {
+    height: var(--nav-height);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.nav-logo {
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background: #f3f4f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.sucursales-main-container {
+    display: flex;
+    flex: 1;
+    width: 100%;
+}
+
+.side-panel {
+    width: 460px;
+    padding: 40px 50px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.back-button {
+    color: #c1272d;
+    font-size: 0.75rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 30px;
+}
+
+.main-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin: 0;
+}
+
+.main-subtitle {
+    color: #6b7280;
+    font-size: 1rem;
+    margin: 20px 0 40px;
+    line-height: 1.4;
+}
+
+.branch-card {
+    border: 1px solid #f0f0f0;
+    border-radius: 16px;
+    padding: 25px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.card-header h2 {
+    font-size: 1.6rem;
+    font-weight: 900;
+    margin: 0;
+}
+
+.card-header h2 span {
+    color: #c1272d;
+}
+
+.arrow-rotate {
+    transform: rotate(180deg);
+    color: #c1272d;
+}
+
+.info-item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.red-icon {
+    color: #c1272d;
+    flex-shrink: 0;
+}
+
+.info-item p {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.small-text {
+    font-size: 0.85rem;
+    color: #9ca3af;
+}
+
+.btn-directions-full {
+    width: 100%;
+    background: #c1272d;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.map-panel-full {
+    flex: 1;
+    position: relative;
+    background: #f8f9fa;
+}
+
+.leaflet-full {
+    height: 100%;
+    width: 100%;
+}
+
+.coords-box {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    background: #121621;
+    color: white;
+    padding: 20px 30px;
+    border-radius: 12px;
+    z-index: 1000;
+}
+
+.coords-label {
+    color: #c1272d;
+    font-size: 0.65rem;
+    font-weight: 900;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.coords-val {
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+.coords-sub {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-top: 3px;
+}
+
+.sucursales-footer {
+    height: var(--footer-height);
+    background: #121621;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
+}
+
+.footer-brand-low {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.red-text {
+    color: #c1272d;
+    font-weight: bold;
+}
+
+.copy-text {
+    color: #4b5563;
+    margin-left: 15px;
+}
+
+:root {
+    --nav-height: 65px;
+    --footer-height: 50px;
+}
+
+.layout-wrapper {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sucursales-nav {
+    height: var(--nav-height);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    background: white;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.nav-logo {
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background: #f3f4f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.sucursales-main-container {
+    display: flex;
+    flex: 1;
+    width: 100%;
+}
+
+.side-panel {
+    width: 460px;
+    padding: 40px 50px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.back-button {
+    color: #c1272d;
+    font-size: 0.75rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 30px;
+}
+
+.main-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin: 0;
+}
+
+.main-subtitle {
+    color: #6b7280;
+    font-size: 1rem;
+    margin: 20px 0 40px;
+    line-height: 1.4;
+}
+
+.branch-card {
+    border: 1px solid #f0f0f0;
+    border-radius: 16px;
+    padding: 25px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.card-header h2 {
+    font-size: 1.6rem;
+    font-weight: 900;
+    margin: 0;
+}
+
+.card-header h2 span {
+    color: #c1272d;
+}
+
+.arrow-rotate {
+    transform: rotate(180deg);
+    color: #c1272d;
+}
+
+.info-item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.red-icon {
+    color: #c1272d;
+    flex-shrink: 0;
+}
+
+.info-item p {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.small-text {
+    font-size: 0.85rem;
+    color: #9ca3af;
+}
+
+.btn-directions-full {
+    width: 100%;
+    background: #c1272d;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.map-panel-full {
+    flex: 1;
+    position: relative;
+    background: #f8f9fa;
+}
+
+.leaflet-full {
+    height: 100%;
+    width: 100%;
+}
+
+.coords-box {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    background: #121621;
+    color: white;
+    padding: 20px 30px;
+    border-radius: 12px;
+    z-index: 1000;
+}
+
+.coords-label {
+    color: #c1272d;
+    font-size: 0.65rem;
+    font-weight: 900;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.coords-val {
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+.coords-sub {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-top: 3px;
+}
+
+.sucursales-footer {
+    height: var(--footer-height);
+    background: #121621;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
+}
+
+.footer-brand-low {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.red-text {
+    color: #c1272d;
+    font-weight: bold;
+}
+
+.copy-text {
+    color: #4b5563;
+    margin-left: 15px;
+}
+
+
+@media (max-width: 1024px) {
+    .layout-wrapper {
+        overflow-y: auto;
+        height: auto;
+    }
+
+    .sucursales-main-container {
+        flex-direction: column;
+    }
+
+    .side-panel {
+        width: 100%;
+        padding: 30px 20px;
+        box-sizing: border-box;
+    }
+
+    .main-title {
+        font-size: 2.5rem;
+    }
+
+    .map-panel-full {
+        height: 450px;
+        width: 100%;
+    }
+
+    .coords-box {
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        text-align: center;
+    }
+
+    .sucursales-footer {
+        height: auto;
+        padding: 20px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-brand-low {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .copy-text {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .sucursales-nav {
+        padding: 0 15px;
+    }
+
+    .nav-logo {
+        font-size: 0.7rem;
+    }
+}

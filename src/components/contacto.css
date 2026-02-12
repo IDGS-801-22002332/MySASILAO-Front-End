@@ -1,0 +1,240 @@
+.contact-screen {
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #fcfcfc;
+}
+
+.contact-nav {
+    height: 65px;
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    border-bottom: 1px solid #eee;
+}
+
+.contact-logo-brand {
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.contact-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.contact-avatar {
+    width: 32px;
+    height: 32px;
+    background: #f3f4f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 900;
+}
+
+.contact-main {
+    flex: 1;
+    padding: 60px 5%;
+    max-width: 1300px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.contact-header-section {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.contact-back-btn {
+    background: none;
+    border: none;
+    color: #c1272d;
+    font-weight: 800;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto 20px;
+    cursor: pointer;
+}
+
+.contact-main-title {
+    font-size: 3.2rem;
+    font-weight: 900;
+    color: #121621;
+    margin: 0;
+}
+
+.red-text {
+    color: #c1272d;
+}
+
+.contact-subtitle {
+    color: #9ca3af;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    letter-spacing: 1px;
+}
+
+
+.contact-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 40px;
+    align-items: start;
+}
+
+.contact-channels {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.channel-card {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid #f0f0f0;
+    transition: 0.3s;
+}
+
+.channel-card:hover {
+    border-color: #c1272d;
+    transform: translateX(10px);
+}
+
+.channel-icon {
+    color: #c1272d;
+    margin-bottom: 15px;
+}
+
+.channel-card h3 {
+    font-size: 0.9rem;
+    font-weight: 900;
+    margin-bottom: 5px;
+    color: #121621;
+}
+
+.channel-card p {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    color: #374151;
+}
+
+.channel-card span {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.contact-form-box {
+    background: white;
+    padding: 50px;
+    border-radius: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02);
+    border: 1px solid #f0f0f0;
+}
+
+.form-header {
+    margin-bottom: 30px;
+}
+
+.form-header h2 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #121621;
+}
+
+.form-header p {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.input-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 18px;
+    background: #f9fafb;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    outline: none;
+    transition: 0.3s;
+    margin-bottom: 20px;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #c1272d;
+    background: white;
+}
+
+.contact-submit-btn {
+    width: 100%;
+    background: #c1272d;
+    color: white;
+    border: none;
+    padding: 20px;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.contact-submit-btn:hover {
+    background: #121621;
+    transform: translateY(-3px);
+}
+
+.contact-footer {
+    height: 60px;
+    background: #121621;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
+}
+
+.contact-footer-info {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.contact-copy {
+    color: #4b5563;
+    margin-left: 20px;
+}
+
+@media (max-width: 1024px) {
+    .contact-grid-container {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-main-title {
+        font-size: 2.5rem;
+    }
+}
