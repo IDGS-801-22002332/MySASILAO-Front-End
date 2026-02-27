@@ -57,7 +57,7 @@ const PaginaPrincipal = () => {
                 <div className="plan-card">
                     <Tractor size={80} strokeWidth={1.2} className="plan-card-icon" />
                     <h2 className="plan-title">Plan 2026</h2>
-                    <p className="plan-subtitle">Financiamiento Directo</p>
+                    <p className="plan-subtitle">Financiamiento</p>
                 </div>
             </section>
             <section className="stats-bar">
@@ -70,12 +70,8 @@ const PaginaPrincipal = () => {
                     <span className="stat-label">CLIENTES ACTIVOS</span>
                 </div>
                 <div className="stat-card">
-                    <span className="stat-number">24/7</span>
-                    <span className="stat-label">SOPORTE TÉCNICO</span>
-                </div>
-                <div className="stat-card">
                     <span className="stat-number">100%</span>
-                    <span className="stat-label">REFACCIONES ORIGINALES</span>
+                    <span className="stat-label">REFACCIONES ORIGINALES Y/O ALTERNATIVAS</span>
                 </div>
             </section>
             <br />
@@ -105,7 +101,6 @@ const PaginaPrincipal = () => {
                         <h4 className="footer-heading">SERVICIOS</h4>
                         <ul className="footer-list">
                             <li>Mantenimiento Mayor</li>
-                            <li>Diagnóstico por Escáner</li>
                             <li>Venta de Implementos</li>
                             <li>Crédito Refaccionario</li>
                         </ul>

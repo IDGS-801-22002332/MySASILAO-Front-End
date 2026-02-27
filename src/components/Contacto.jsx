@@ -42,7 +42,7 @@ const Contacto = () => {
                         <div className="channel-card">
                             <div className="channel-icon"><Mail size={24} /></div>
                             <h3>ESCRÍBENOS</h3>
-                            <p>java135@gmail.com</p>
+                            <p>contacto@mysasilao.com</p>
                             <span>Respuesta en menos de 24h</span>
                         </div>
                         <div className="channel-card">
