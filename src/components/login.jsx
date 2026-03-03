@@ -66,6 +66,25 @@ const Login = () => {
                             <LogIn size={18} />
                             Iniciar Sesión
                         </button>
+
+                        <div className="login-hint">
+                            ¿No tienes cuenta?
+                            <button type="button"
+                                className="link-inline"
+                                onClick={() => navigate("/registroUsuario")}>
+                                Registrate
+                            </button>
+                        </div>
+                        <br />
+
+                        <div className="login-hint">
+                            ¿Olvidaste tu contraseña?
+                            <button type="button"
+                                className="link-inline"
+                                onClick={() => navigate("/recuperarContrasenia")}>
+                                Recuperar
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
