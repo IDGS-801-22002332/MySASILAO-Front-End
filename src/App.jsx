@@ -8,6 +8,8 @@ import Taller from "./components/Taller.jsx";
 import ClienteSeguimiento from "./components/ClienteSeguimiento.jsx";
 import Internos from "./components/Internos.jsx";
 import Login from "./components/login.jsx";
+import RegistroUsuario from "./components/registroUsuario.jsx";
+import RecuperarContrasenia from "./components/recuperarContrasenia.jsx";
 
 function App() {
     return (
@@ -38,6 +40,12 @@ function App() {
             </Routes>
             <Routes>
                 <Route path="/login" element={<Login />} />
+            </Routes>
+            <Routes>
+                <Route path="/registroUsuario" element={<RegistroUsuario />} />
+            </Routes>
+            <Routes>
+                <Route path="/recuperarContrasenia" element={<RecuperarContrasenia />} />
             </Routes>
         </Router>
     );
