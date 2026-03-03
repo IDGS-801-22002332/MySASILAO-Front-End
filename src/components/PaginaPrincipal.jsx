@@ -31,7 +31,7 @@ const PaginaPrincipal = () => {
                     <a href="/taller">Taller</a>
                     <a href="/cliente">Clientes</a>
                     <a href="/internos">Internos</a>
-                    <User size={20} className="nav-user-icon" />
+                    <a href="/login"><User size={20} className="nav-user-icon" /></a>
                 </div>
             </nav>
             <main className="hero-section">
