@@ -64,10 +64,10 @@ const Productos = () => {
                     </div>
                     <div className="product-info">
                         <span className="product-tag">TRACTORES</span>
-                        <h3>Serie 6M Potencia Eficiente</h3>
-                        <p>Motor de alto torque con tecnología de ahorro de combustible.</p>
+                        <h3>Serie ***</h3>
+                        <p>Motor ***</p>
                         <div className="product-footer">
-                            <span className="price">Desde $1,250,000</span>
+                            <span className="price">Desde ***</span>
                             <button className="btn-cotizar-small">COTIZAR</button>
                         </div>
                     </div>

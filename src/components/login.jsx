@@ -24,6 +24,7 @@ const Login = () => {
                     <div className="login-avatar">JD</div>
                 </div>
             </nav>
+
             <br />
             <div
                 className="back-button"
@@ -53,6 +54,7 @@ const Login = () => {
                                 onChange={(e) => setUsuario(e.target.value)}
                             />
                         </div>
+
                         <div className="input-wrapper">
                             <Lock size={16} className="input-icon" />
                             <input
@@ -62,6 +64,7 @@ const Login = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
+
                         <button type="submit" className="btn-login">
                             <LogIn size={18} />
                             Iniciar Sesión
@@ -69,19 +72,24 @@ const Login = () => {
 
                         <div className="login-hint">
                             ¿No tienes cuenta?
-                            <button type="button"
+                            <button
+                                type="button"
                                 className="link-inline"
-                                onClick={() => navigate("/registroUsuario")}>
+                                onClick={() => navigate("/registroUsuario")}
+                            >
                                 Registrate
                             </button>
                         </div>
+
                         <br />
 
                         <div className="login-hint">
                             ¿Olvidaste tu contraseña?
-                            <button type="button"
+                            <button
+                                type="button"
                                 className="link-inline"
-                                onClick={() => navigate("/recuperarContrasenia")}>
+                                onClick={() => navigate("/recuperarContrasenia")}
+                            >
                                 Recuperar
                             </button>
                         </div>
@@ -93,7 +101,9 @@ const Login = () => {
                 <div className="footer-content">
                     <span className="red-text">MSA</span>
                     <span>MAQUINARIA Y SERVICIO AGRÍCOLA</span>
-                    <span className="copyright">© 2024 Todos los derechos reservados</span>
+                    <span className="copyright">
+                        © 2024 Todos los derechos reservados
+                    </span>
                 </div>
             </footer>
         </div>

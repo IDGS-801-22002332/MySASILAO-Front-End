@@ -17,33 +17,43 @@ function App() {
             <Routes>
                 <Route path="/" element={<PaginaPrincipal />} />
             </Routes>
+
             <Routes>
                 <Route path="/sucursales" element={<Sucursales />} />
             </Routes>
+
             <Routes>
                 <Route path="/productos" element={<Productos />} />
             </Routes>
+
             <Routes>
                 <Route path="/acercaDe" element={<AcercaDe />} />
             </Routes>
+
             <Routes>
                 <Route path="/contacto" element={<Contacto />} />
             </Routes>
+
             <Routes>
                 <Route path="/taller" element={<Taller />} />
             </Routes>
+
             <Routes>
                 <Route path="/cliente" element={<ClienteSeguimiento />} />
             </Routes>
+
             <Routes>
                 <Route path="/internos" element={<Internos />} />
             </Routes>
+
             <Routes>
                 <Route path="/login" element={<Login />} />
             </Routes>
+
             <Routes>
                 <Route path="/registroUsuario" element={<RegistroUsuario />} />
             </Routes>
+
             <Routes>
                 <Route path="/recuperarContrasenia" element={<RecuperarContrasenia />} />
             </Routes>
