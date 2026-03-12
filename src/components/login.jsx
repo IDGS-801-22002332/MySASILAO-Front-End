@@ -24,9 +24,15 @@ const Login = () => {
                     <div className="login-avatar">JD</div>
                 </div>
             </nav>
-            <button className="internos-back" onClick={() => navigate('/')}>
-                <ArrowLeft size={16} /> REGRESAR AL DASHBOARD
-            </button>
+
+            <br />
+            <div
+                className="back-button"
+                onClick={() => navigate("/")}
+                style={{ cursor: "pointer" }}
+            >
+                <ArrowLeft size={14} /> VOLVER AL INICIO
+            </div>
 
             <div className="login-container">
                 <div className="login-form">
@@ -48,6 +54,7 @@ const Login = () => {
                                 onChange={(e) => setUsuario(e.target.value)}
                             />
                         </div>
+
                         <div className="input-wrapper">
                             <Lock size={16} className="input-icon" />
                             <input
@@ -57,10 +64,35 @@ const Login = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
+
                         <button type="submit" className="btn-login">
                             <LogIn size={18} />
                             Iniciar Sesión
                         </button>
+
+                        <div className="login-hint">
+                            ¿No tienes cuenta?
+                            <button
+                                type="button"
+                                className="link-inline"
+                                onClick={() => navigate("/registroUsuario")}
+                            >
+                                Registrate
+                            </button>
+                        </div>
+
+                        <br />
+
+                        <div className="login-hint">
+                            ¿Olvidaste tu contraseña?
+                            <button
+                                type="button"
+                                className="link-inline"
+                                onClick={() => navigate("/recuperarContrasenia")}
+                            >
+                                Recuperar
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -69,7 +101,9 @@ const Login = () => {
                 <div className="footer-content">
                     <span className="red-text">MSA</span>
                     <span>MAQUINARIA Y SERVICIO AGRÍCOLA</span>
-                    <span className="copyright">© 2024 Todos los derechos reservados</span>
+                    <span className="copyright">
+                        © 2024 Todos los derechos reservados
+                    </span>
                 </div>
             </footer>
         </div>

@@ -178,6 +178,7 @@ textarea {
     outline: none;
     transition: 0.3s;
     margin-bottom: 20px;
+    color: #121621;
 }
 
 input:focus,
@@ -185,6 +186,7 @@ textarea:focus {
     border-color: #c1272d;
     background: white;
 }
+
 
 .contact-submit-btn {
     width: 100%;

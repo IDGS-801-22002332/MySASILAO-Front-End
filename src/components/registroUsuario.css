@@ -1,0 +1,340 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;900&family=Barlow+Condensed:wght@700;900&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ── ROOT ── */
+.register-screen {
+    width: 100vw;
+    min-height: 100vh;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Barlow', sans-serif;
+}
+
+/* ── NAV ── */
+.register-nav {
+    height: 70px;
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    border-bottom: 1px solid #eee;
+}
+
+.register-logo-brand {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #121621;
+}
+
+.register-logo-brand strong {
+    color: #c1272d;
+    font-weight: 900;
+}
+
+.register-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    color: #121621;
+}
+
+.register-avatar {
+    width: 32px;
+    height: 32px;
+    background: #eee;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #121621;
+}
+
+/* ── CONTAINER ── */
+.register-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 5%;
+}
+
+/* ── CARD ── */
+.register-form {
+    background: white;
+    padding: 60px 50px;
+    border-radius: 24px;
+    border: 1px solid #eee;
+    border-bottom: 6px solid #c1272d;
+    width: 100%;
+    max-width: 820px;
+    /* Más ancho para 2 columnas */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.register-form:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+}
+
+.register-icon-wrap {
+    background: #c1272d;
+    color: white;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.register-label {
+    color: #c1272d;
+    font-weight: 900;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.register-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 2.6rem;
+    font-weight: 900;
+    color: #121621;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.register-divider {
+    width: 40px;
+    height: 4px;
+    background: #c1272d;
+    margin-bottom: 35px;
+}
+
+/* ── GRID 2 COLUMNAS ── */
+.register-form-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* dos columnas iguales */
+    gap: 18px 26px;
+    /* filas x columnas */
+}
+
+.register-col {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* fila que abarca las dos columnas (usuario y pass) */
+.register-row-span {
+    grid-column: 1 / -1;
+    /* ocupa todo el ancho del grid */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 26px;
+}
+
+/* ── INPUTS ── */
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.register-form-grid input {
+    width: 100%;
+    padding: 14px 16px 14px 46px;
+    /* espacio para icono */
+    border: 1px solid #eee;
+    border-radius: 12px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #121621;
+    background: #f9f9f9;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.register-form-grid input::placeholder {
+    color: #9ca3af;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.register-form-grid input:focus {
+    border-color: #c1272d;
+    box-shadow: 0 0 0 3px rgba(193, 39, 45, 0.08);
+    background: white;
+}
+
+/* ── BUTTON ── */
+.btn-register {
+    grid-column: 1 / -1;
+    /* que el botón abarque el ancho completo del grid */
+    width: 100%;
+    padding: 15px;
+    background: #121621;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-register:hover {
+    background: #c1272d;
+    transform: translateY(-2px);
+}
+
+.btn-register:active {
+    transform: translateY(0);
+}
+
+/* ── FOOTER ── */
+.register-footer {
+    background: #121621;
+    color: white;
+    padding: 20px 40px;
+}
+
+.footer-content {
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Barlow', sans-serif;
+}
+
+.red-text {
+    color: #c1272d;
+    font-weight: 900;
+}
+
+.copyright {
+    color: #4b5563;
+    margin-left: 20px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+    .register-form {
+        max-width: 96vw;
+    }
+}
+
+@media (max-width: 700px) {
+    .register-form-grid {
+        grid-template-columns: 1fr;
+        /* una columna en pantallas pequeñas */
+    }
+
+    .register-row-span {
+        grid-template-columns: 1fr;
+        /* usuario y password en filas */
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-form {
+        padding: 40px 30px;
+    }
+
+    .register-title {
+        font-size: 2.2rem;
+    }
+
+    .register-nav {
+        padding: 0 20px;
+    }
+}
+
+.form-label {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: #121621;
+    margin-bottom: 6px;
+    letter-spacing: 0.2px;
+    display: inline-block;
+}
+
+.register-form-grid input {
+    padding: 16px 16px 16px 48px;
+    /* +2px arriba/abajo y espacio para icono */
+    font-size: 1rem;
+    /* un pelín más grande */
+}
+
+/* Estado de foco: resalta también el label del campo activo */
+.input-wrapper:focus-within+.form-help,
+.input-wrapper:focus-within~.form-label {
+    /* fallback si cambias el orden */
+    color: #c1272d;
+}
+
+.input-wrapper:focus-within input {
+    border-color: #c1272d;
+    box-shadow: 0 0 0 3px rgba(193, 39, 45, 0.08);
+    background: #fff;
+}
+
+/* (Opcional) Hover suave en labels para indicar que son clicables */
+.form-label:hover {
+    color: #c1272d;
+}
+
+/* Botón “Atrás” (si quieres estilo visual) */
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #121621;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin: 16px 40px 0;
+    user-select: none;
+    cursor: pointer;
+}
+
+.back-button:hover {
+    color: #c1272d;
+}
