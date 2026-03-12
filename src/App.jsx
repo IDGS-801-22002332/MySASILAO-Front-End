@@ -7,6 +7,7 @@ import Contacto from "./components/Contacto.jsx";
 import Taller from "./components/Taller.jsx";
 import ClienteSeguimiento from "./components/ClienteSeguimiento.jsx";
 import Internos from "./components/Internos.jsx";
+import Login from "./components/login.jsx";
 
 function App() {
     return (
@@ -34,6 +35,9 @@ function App() {
             </Routes>
             <Routes>
                 <Route path="/internos" element={<Internos />} />
+            </Routes>
+            <Routes>
+                <Route path="/login" element={<Login />} />
             </Routes>
         </Router>
     );
