@@ -1,6 +1,3 @@
-// authUtils.js
-// Utilidades centrales para manejar la sesión del usuario
-
 const SESSION_KEY = 'msa_session';
 
 /**
@@ -24,17 +21,16 @@ export const getSession = () => {
     }
 };
 
-/**
- * Elimina la sesión (logout)
- */
 export const clearSession = () => {
     localStorage.removeItem(SESSION_KEY);
 };
 
-/**
- * Devuelve true si el usuario tiene rol "Interno"
- */
 export const isInterno = () => {
     const session = getSession();
     return session?.rol === 'Interno';
+};
+
+export const isMecanicos = () => {
+    const session = getSession();
+    return session?.rol === 'Mecanico';
 };

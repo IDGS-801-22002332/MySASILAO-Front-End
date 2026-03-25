@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { isInterno } from './authUtils';
+import { isInterno, isMecanicos } from './authUtils';
 import {
-    Tractor, User, Phone, MapPin, Tag, X, Menu, Pencil, Check, LogOut
+    Tractor, User, Phone, MapPin, Tag, X, Menu, Pencil, Check, LogOut, AlertCircle
 } from 'lucide-react';
 import './PaginaPrincipal.css';
 
 const API_BASE = 'http://localhost:3000';
-const isAdmin = isInterno();
 
 const PaginaPrincipal = () => {
     const navigate = useNavigate();
@@ -16,9 +15,16 @@ const PaginaPrincipal = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [anuncio, setAnuncio] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [showLogoutAlert, setShowLogoutAlert] = useState(false);
     const [editForm, setEditForm] = useState({ titulo: '', descripcion: '', pie: '' });
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState('');
+
+    const userRole = localStorage.getItem('role');
+    const isAdmin = isInterno();
+    const isMecanico = isMecanicos();
+    
+    const canSeeInternos = isAdmin || isMecanico;
 
     const slides = [
         {
@@ -101,14 +107,35 @@ const PaginaPrincipal = () => {
         setSaving(false);
     };
 
-    const handleLogout = () => {
+    const triggerLogout = () => {
         localStorage.clear();
         setMenuOpen(false);
-        navigate('/login');
+        setShowLogoutAlert(true);
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 2000);
     };
 
     return (
         <div className="landing-container">
+            {showLogoutAlert && (
+                <div style={{
+                    position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
+                    zIndex: 10000, background: '#fff', padding: '16px 24px', borderRadius: '12px',
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.15)', borderLeft: '4px solid #e53e3e',
+                    animation: 'slideDown 0.4s ease-out'
+                }}>
+                    <div style={{ background: '#fff5f5', padding: '8px', borderRadius: '50%' }}>
+                        <AlertCircle size={20} color="#e53e3e" />
+                    </div>
+                    <div>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '14px', color: '#1a202c' }}>Sesión Finalizada</p>
+                        <p style={{ margin: 0, fontSize: '12px', color: '#718096' }}>Redirigiendo al inicio...</p>
+                    </div>
+                </div>
+            )}
+
             {showEditModal && (
                 <div
                     style={{
@@ -194,6 +221,7 @@ const PaginaPrincipal = () => {
                     </div>
                 </div>
             )}
+
             {showAd && anuncio && (
                 <div className="ads-sidebar-custom">
                     <div className="custom-ad-card">
@@ -229,6 +257,7 @@ const PaginaPrincipal = () => {
                     </div>
                 </div>
             )}
+
             <nav className="navbar">
                 <div className="logo-container">
                     <Tractor size={35} className="logo-icon" strokeWidth={1.5} />
@@ -247,6 +276,7 @@ const PaginaPrincipal = () => {
                     <a href="/contacto" onClick={() => setMenuOpen(false)}>Contacto</a>
                     <a href="/sucursales" onClick={() => setMenuOpen(false)}>Sucursales</a>
                     <a href="/acercaDe" onClick={() => setMenuOpen(false)}>Acerca De</a>
+                    <a href="/cliente" onClick={() => setMenuOpen(false)}>Solicitudes</a>
                     {isAdmin && (
                         <a href="/registroMecanicos" onClick={() => setMenuOpen(false)}>
                             Registrar
@@ -257,7 +287,7 @@ const PaginaPrincipal = () => {
                             Internos
                         </a>
                     )}
-                    {isAdmin && (
+                    {canSeeInternos && (
                         <a href="/taller" onClick={() => setMenuOpen(false)}>
                             Mecánicos
                         </a>
@@ -265,8 +295,8 @@ const PaginaPrincipal = () => {
                     <a href="/login" onClick={() => setMenuOpen(false)}>
                         <User size={20} className="nav-user-icon" />
                     </a>
-                    <button 
-                        onClick={handleLogout}
+                    <button
+                        onClick={triggerLogout}
                         className="logout-nav-btn"
                         style={{
                             background: 'none', border: 'none', color: '#e53e3e',
@@ -274,7 +304,7 @@ const PaginaPrincipal = () => {
                             gap: '8px', padding: '0 15px', fontSize: '1rem', fontWeight: '600'
                         }}
                     >
-                        <LogOut size={20} /> 
+                        <LogOut size={20} />
                     </button>
                 </div>
             </nav>
@@ -350,7 +380,6 @@ const PaginaPrincipal = () => {
                             Somos una empresa independiente dedicada a brindar las mejores
                             soluciones mecánicas y comerciales para el sector agropecuario en México.
                         </p>
-                        
                     </div>
 
                     <div className="footer-column">

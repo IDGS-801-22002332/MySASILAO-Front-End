@@ -12,7 +12,6 @@ const Login = () => {
     const [usuario, setUsuario]   = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading]   = useState(false);
-
     const [alert, setAlert] = useState(null);
 
     const showAlert = (type, message) => {
@@ -44,10 +43,11 @@ const Login = () => {
 
             if (data.success) {
                 saveSession({ usuario: data.usuario, rol: data.rol });
-
                 showAlert('success', `¡Bienvenido, ${data.usuario}!`);
-
-                setTimeout(() => navigate('/'), 1200);
+                
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1000);
             } else {
                 showAlert('error', data.message || 'Usuario o contraseña incorrectos.');
             }
@@ -97,7 +97,7 @@ const Login = () => {
                 </div>
                 <div className="login-nav-right">
                     <User size={20} strokeWidth={1.5} />
-                    <div className="login-avatar">JD</div>
+                    <div className="login-avatar">MSA</div>
                 </div>
             </nav>
 
@@ -113,7 +113,6 @@ const Login = () => {
 
             <div className="login-container">
                 <div className="login-form">
-
                     <div className="login-icon-wrap">
                         <User size={32} strokeWidth={1.5} />
                     </div>
@@ -123,7 +122,6 @@ const Login = () => {
                     <div className="login-divider" />
 
                     <form className="login-form-box" onSubmit={handleSubmit}>
-
                         <div className="input-wrapper">
                             <User size={16} className="input-icon" />
                             <input
@@ -179,7 +177,6 @@ const Login = () => {
                                 Recuperar
                             </button>
                         </div>
-
                     </form>
                 </div>
             </div>
@@ -205,7 +202,6 @@ const Login = () => {
                     to   { transform: rotate(360deg); }
                 }
             `}</style>
-
         </div>
     );
 };

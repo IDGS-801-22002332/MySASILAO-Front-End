@@ -229,6 +229,10 @@ textarea.input-black {
     gap: 10px;
 }
 
+.cliente-nav{
+    color: #121621;
+}
+
 .footer-id {
     color: #9ca3af;
     margin-left: auto;
@@ -271,4 +275,63 @@ textarea.input-black {
 .copy-text {
     color: #4b5563;
     margin-left: 15px;
+}
+
+.cliente-screen {
+    position: relative;
+    min-height: 100vh;
+}
+
+.content-wrapper {
+    transition: filter 0.3s ease;
+}
+
+.content-blurred {
+    filter: blur(8px);
+    pointer-events: none; 
+    user-select: none;    
+}
+
+.modal-overlay-blur {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.4); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.auth-alert-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 15px;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    border-top: 6px solid #e63946;
+    color: #000000;
+}
+
+.btn-login-redirect {
+    background: #1a1a1a;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.btn-back-home {
+    background: none;
+    border: none;
+    color: #666;
+    text-decoration: underline;
+    cursor: pointer;
 }
