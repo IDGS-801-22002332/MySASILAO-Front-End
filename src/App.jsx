@@ -10,6 +10,7 @@ import Internos from "./components/Internos.jsx";
 import Login from "./components/login.jsx";
 import RegistroUsuario from "./components/registroUsuario.jsx";
 import RecuperarContrasenia from "./components/recuperarContrasenia.jsx";
+import RegistroMecanicos from "./components/registroMecanicos.jsx";
 
 function App() {
     return (
@@ -46,6 +47,9 @@ function App() {
             </Routes>
             <Routes>
                 <Route path="/recuperarContrasenia" element={<RecuperarContrasenia />} />
+            </Routes>
+            <Routes>
+                <Route path="/registroMecanicos" element={<RegistroMecanicos />} />
             </Routes>
         </Router>
     );

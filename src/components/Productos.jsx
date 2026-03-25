@@ -1,13 +1,80 @@
-import React, { useState } from 'react';
-import { Search, ShoppingCart, Eye, Filter, Send, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Tag, Hash } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import './Productos.css';
 
+const CATEGORIA_MAP = {
+    'Todos':        '',
+    'Tractores':    'tractor',
+    'Sembradora':   'sembradora',
+    'Subsuelo':     'svh',
+    'Cultivadoras': 'cultivadora',
+    'Otros':        'otros',
+};
+
+const CATEGORIA_ICON = {
+    'Todos':        '',
+    'Tractores':    '',
+    'Sembradora':   '',
+    'Subsuelo':     '',
+    'Cultivadoras': '',
+    'Otros':        '',
+};
+
+const CATEGORIA_KEY_MAP = {
+    'Tractores':    'tractor',
+    'Sembradora':   'sembradora',
+    'Subsuelo':     'svh',
+    'Cultivadoras': 'cultivadora',
+    'Otros':        'otros',
+};
+
 const Productos = () => {
     const [categoria, setCategoria] = useState('Todos');
+    const [productos, setProductos] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     const categorias = ["Todos", "Tractores", "Sembradora", "Subsuelo", "Cultivadoras", "Otros"];
+
+    useEffect(() => {
+        const fetchProductos = async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const categoryParam = CATEGORIA_MAP[categoria];
+                const url = categoryParam
+                    ? `http://localhost:3000/productos?category=${categoryParam}`
+                    : `http://localhost:3000/productos`;
+
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+                const data = await res.json();
+
+                if (categoryParam) {
+                    const filtrados = data.filter((p) => {
+                        const nombre = (p.Nombre || '').toLowerCase();
+                        const idStr = String(p.IdProducto || '').toLowerCase();
+                        const cat = (p.Categoria || p.categoria || p.category || '').toLowerCase();
+                        const key = categoryParam.toLowerCase();
+                        return nombre.includes(key) || idStr.includes(key) || cat.includes(key);
+                    });
+                    setProductos(filtrados.length > 0 ? filtrados : data);
+                } else {
+                    setProductos(data);
+                }
+            } catch (err) {
+                console.error('Error al obtener productos:', err);
+                setError('No se pudieron cargar los productos. Verifica que el servidor esté activo.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProductos();
+    }, [categoria]);
 
     return (
         <div className="productos-layout">
@@ -16,7 +83,6 @@ const Productos = () => {
                     <strong>MAQUINARIA Y</strong> SERVICIO AGRÍCOLA
                 </div>
                 <div className="nav-icons">
-                    <ShoppingCart size={20} strokeWidth={1.5} />
                     <div className="user-avatar">JD</div>
                 </div>
             </nav>
@@ -46,32 +112,51 @@ const Productos = () => {
                             className={`cat-btn ${categoria === cat ? 'active' : ''}`}
                             onClick={() => setCategoria(cat)}
                         >
-                            {cat}
+                            {CATEGORIA_ICON[cat]} {cat}
                         </button>
                     ))}
                 </nav>
-
             </header>
 
             <main className="productos-grid">
-                <div className="product-card">
-                    <div className="product-image">
-                        <img src="https://via.placeholder.com/400x300" alt="Tractor" />
-                        <div className="image-overlay">
-                            <button className="icon-action"><Eye size={20} /></button>
-                            <button className="icon-action"><ShoppingCart size={20} /></button>
+
+                {loading && (
+                    <div className="state-message">Cargando productos...</div>
+                )}
+
+                {!loading && error && (
+                    <div className="state-message error">{error}</div>
+                )}
+
+                {!loading && !error && productos.length === 0 && (
+                    <div className="state-message">No hay productos en esta categoría.</div>
+                )}
+
+                {!loading && !error && productos.map((producto) => (
+                    <div key={producto.IdProducto} className="product-card">
+
+                        <div className="product-banner">
+                            <span className="product-banner-icon">
+                                {CATEGORIA_ICON[categoria] ?? '⚙️'}
+                            </span>
+                        </div>
+
+                        <div className="product-info">
+                            <span className="product-tag">
+                                <Tag size={10} style={{ marginRight: 4 }} />
+                                {categoria === 'Todos' ? 'MAQUINARIA' : categoria.toUpperCase()}
+                            </span>
+
+                            <h3 className="product-name">{producto.Nombre}</h3>
+
+                            <p className="product-id">
+                                <Hash size={11} style={{ marginRight: 3 }} />
+                                ID: {producto.IdProducto}
+                            </p>
                         </div>
                     </div>
-                    <div className="product-info">
-                        <span className="product-tag">TRACTORES</span>
-                        <h3>Serie 6M Potencia Eficiente</h3>
-                        <p>Motor de alto torque con tecnología de ahorro de combustible.</p>
-                        <div className="product-footer">
-                            <span className="price">Desde $1,250,000</span>
-                            <button className="btn-cotizar-small">COTIZAR</button>
-                        </div>
-                    </div>
-                </div>
+                ))}
+
             </main>
 
             <footer className="sucursales-footer">
@@ -82,7 +167,6 @@ const Productos = () => {
                     </span>
                 </div>
             </footer>
-
         </div>
     );
 };
