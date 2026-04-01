@@ -1,31 +1,93 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-    User,
-    UserPlus,
-    Mail,
-    Lock,
-    Phone,
-    Home,
-    Hash,
-    MapPin,
-    Building2,
-    ArrowLeft,
+    User, UserPlus, Mail, Lock, Phone,
+    Home, Hash, MapPin, Building2, ArrowLeft,
+    CheckCircle, XCircle, Loader
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./registroUsuario.css";
 
+const API_BASE = "http://localhost:3000";
+
 const RegistroUsuario = () => {
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const [form, setForm] = useState({
+        nombre: "",
+        apellidoPaterno: "",
+        apellidoMaterno: "",
+        telefono: "",
+        correo: "",
+        calle: "",
+        numero: "",
+        codigoPostal: "",
+        colonia: "",
+        ciudad: "",
+        usuario: "",
+        contrasenia: "",
+    });
+
+    const [loading, setLoading] = useState(false);
+    const [alert, setAlert] = useState(null);
+
+    const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+
+    const showAlert = (type, message) => {
+        setAlert({ type, message });
+        if (type === "error") setTimeout(() => setAlert(null), 3500);
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO: procesa los datos o conecta con tu API
-        console.log("Formulario de registro enviado");
+        setLoading(true);
+        setAlert(null);
+
+        try {
+            const res = await fetch(`${API_BASE}/login/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...form,
+                    codigo: null,
+                    rol: "cliente",
+                }),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                showAlert("success", "¡Cuenta creada correctamente! Redirigiendo...");
+                setTimeout(() => navigate("/login"), 1500);
+            } else {
+                showAlert("error", data.message || "No se pudo crear la cuenta.");
+            }
+        } catch {
+            showAlert("error", "No se pudo conectar con el servidor.");
+        }
+
+        setLoading(false);
     };
 
     return (
         <div className="register-screen">
-            {/* NAV */}
+
+            {alert && (
+                <div style={{
+                    position: "fixed", top: 24, left: "50%",
+                    transform: "translateX(-50%)", zIndex: 9999,
+                    display: "flex", alignItems: "center", gap: 10,
+                    padding: "12px 20px", borderRadius: 8,
+                    boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
+                    minWidth: 280, maxWidth: 420,
+                    fontSize: 13, fontWeight: 600, color: "#fff",
+                    background: alert.type === "success" ? "#1a7a3f" : "#c0392b",
+                    animation: "fadeInDown 0.25s ease",
+                }}>
+                    {alert.type === "success" ? <CheckCircle size={18} /> : <XCircle size={18} />}
+                    {alert.message}
+                </div>
+            )}
+
             <nav className="register-nav">
                 <div className="register-logo-brand">
                     <strong>MAQUINARIA Y</strong> SERVICIO AGRÍCOLA
@@ -36,20 +98,16 @@ const RegistroUsuario = () => {
                 </div>
             </nav>
 
-            {/* Botón atrás */}
             <div
                 className="back-button"
                 onClick={() => navigate("/login")}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) =>
-                    (e.key === "Enter" || e.key === " ") && navigate("/login")
-                }
+                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate("/login")}
             >
                 <ArrowLeft size={16} /> Atrás
             </div>
 
-            {/* CONTENEDOR */}
             <main className="register-container">
                 <section className="register-form">
                     <div className="register-icon-wrap">
@@ -60,225 +118,125 @@ const RegistroUsuario = () => {
                     <h1 className="register-title">Registro de Usuario</h1>
                     <div className="register-divider" />
 
-                    {/* FORMULARIO EN 2 COLUMNAS */}
                     <form className="register-form-grid" onSubmit={handleSubmit}>
-                        {/* Columna izquierda */}
+
                         <div className="register-col">
-                            {/* Nombre(s) */}
-                            <label className="form-label" htmlFor="nombre">
-                                Nombre(s)
-                            </label>
+                            <label className="form-label" htmlFor="nombre">Nombre(s)</label>
                             <div className="input-wrapper">
                                 <User className="input-icon" size={18} />
-                                <input
-                                    id="nombre"
-                                    name="nombre"
-                                    type="text"
-                                    placeholder="NOMBRE(S)"
-                                    autoComplete="given-name"
-                                    required
-                                />
+                                <input id="nombre" type="text" placeholder="NOMBRE(S)"
+                                    value={form.nombre} onChange={set("nombre")}
+                                    autoComplete="given-name" required />
                             </div>
 
-                            {/* Apellido Paterno */}
-                            <label className="form-label" htmlFor="apPat">
-                                Apellido Paterno
-                            </label>
+                            <label className="form-label" htmlFor="apellidoPaterno">Apellido Paterno</label>
                             <div className="input-wrapper">
                                 <User className="input-icon" size={18} />
-                                <input
-                                    id="apPat"
-                                    name="apPat"
-                                    type="text"
-                                    placeholder="APELLIDO PATERNO"
-                                    autoComplete="family-name"
-                                    required
-                                />
+                                <input id="apellidoPaterno" type="text" placeholder="APELLIDO PATERNO"
+                                    value={form.apellidoPaterno} onChange={set("apellidoPaterno")}
+                                    autoComplete="family-name" required />
                             </div>
 
-                            {/* Apellido Materno */}
-                            <label className="form-label" htmlFor="apMat">
-                                Apellido Materno
-                            </label>
+                            <label className="form-label" htmlFor="apellidoMaterno">Apellido Materno</label>
                             <div className="input-wrapper">
                                 <User className="input-icon" size={18} />
-                                <input
-                                    id="apMat"
-                                    name="apMat"
-                                    type="text"
-                                    placeholder="APELLIDO MATERNO"
-                                    autoComplete="additional-name"
-                                    required
-                                />
+                                <input id="apellidoMaterno" type="text" placeholder="APELLIDO MATERNO"
+                                    value={form.apellidoMaterno} onChange={set("apellidoMaterno")}
+                                    autoComplete="additional-name" required />
                             </div>
 
-                            {/* Teléfono */}
-                            <label className="form-label" htmlFor="numTel">
-                                Número de teléfono
-                            </label>
+                            <label className="form-label" htmlFor="telefono">Número de teléfono</label>
                             <div className="input-wrapper">
                                 <Phone className="input-icon" size={18} />
-                                <input
-                                    id="numTel"
-                                    name="numTel"
-                                    type="tel"
-                                    placeholder="TELÉFONO"
-                                    autoComplete="tel"
-                                    required
-                                />
+                                <input id="telefono" type="tel" placeholder="TELÉFONO"
+                                    value={form.telefono} onChange={set("telefono")}
+                                    autoComplete="tel" required />
                             </div>
 
-                            {/* Email */}
-                            <label className="form-label" htmlFor="email">
-                                Correo electrónico
-                            </label>
+                            <label className="form-label" htmlFor="correo">Correo electrónico</label>
                             <div className="input-wrapper">
                                 <Mail className="input-icon" size={18} />
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    placeholder="CORREO ELECTRÓNICO"
-                                    autoComplete="email"
-                                    required
-                                />
+                                <input id="correo" type="email" placeholder="CORREO ELECTRÓNICO"
+                                    value={form.correo} onChange={set("correo")}
+                                    autoComplete="email" required />
                             </div>
                         </div>
 
-                        {/* Columna derecha */}
                         <div className="register-col">
-                            {/* Calle */}
-                            <label className="form-label" htmlFor="calle">
-                                Calle
-                            </label>
+                            <label className="form-label" htmlFor="calle">Calle</label>
                             <div className="input-wrapper">
                                 <Home className="input-icon" size={18} />
-                                <input
-                                    id="calle"
-                                    name="calle"
-                                    type="text"
-                                    placeholder="CALLE"
-                                    autoComplete="address-line1"
-                                    required
-                                />
+                                <input id="calle" type="text" placeholder="CALLE"
+                                    value={form.calle} onChange={set("calle")}
+                                    autoComplete="address-line1" required />
                             </div>
 
-                            {/* Número Exterior */}
-                            <label className="form-label" htmlFor="numExt">
-                                Número exterior
-                            </label>
+                            <label className="form-label" htmlFor="numero">Número exterior</label>
                             <div className="input-wrapper">
                                 <Hash className="input-icon" size={18} />
-                                <input
-                                    id="numExt"
-                                    name="numExt"
-                                    type="text"
-                                    placeholder="NÚMERO EXTERIOR"
-                                    required
-                                />
+                                <input id="numero" type="text" placeholder="NÚMERO EXTERIOR"
+                                    value={form.numero} onChange={set("numero")} required />
                             </div>
 
-                            {/* Código Postal */}
-                            <label className="form-label" htmlFor="cp">
-                                Código postal
-                            </label>
+                            <label className="form-label" htmlFor="codigoPostal">Código postal</label>
                             <div className="input-wrapper">
                                 <MapPin className="input-icon" size={18} />
-                                <input
-                                    id="cp"
-                                    name="cp"
-                                    type="text"
-                                    placeholder="CÓDIGO POSTAL"
-                                    inputMode="numeric"
-                                    pattern="[0-9]{5}"
-                                    title="Ingresa 5 dígitos"
-                                    autoComplete="postal-code"
-                                    required
-                                />
+                                <input id="codigoPostal" type="text" placeholder="CÓDIGO POSTAL"
+                                    value={form.codigoPostal} onChange={set("codigoPostal")}
+                                    inputMode="numeric" pattern="[0-9]{5}" title="Ingresa 5 dígitos"
+                                    autoComplete="postal-code" required />
                             </div>
 
-                            {/* Colonia */}
-                            <label className="form-label" htmlFor="col">
-                                Colonia
-                            </label>
+                            <label className="form-label" htmlFor="colonia">Colonia</label>
                             <div className="input-wrapper">
                                 <MapPin className="input-icon" size={18} />
-                                <input
-                                    id="col"
-                                    name="col"
-                                    type="text"
-                                    placeholder="COLONIA"
-                                    autoComplete="address-line2"
-                                    required
-                                />
+                                <input id="colonia" type="text" placeholder="COLONIA"
+                                    value={form.colonia} onChange={set("colonia")}
+                                    autoComplete="address-line2" required />
                             </div>
 
-                            {/* Ciudad */}
-                            <label className="form-label" htmlFor="ciudad">
-                                Ciudad
-                            </label>
+                            <label className="form-label" htmlFor="ciudad">Ciudad</label>
                             <div className="input-wrapper">
                                 <Building2 className="input-icon" size={18} />
-                                <input
-                                    id="ciudad"
-                                    name="ciudad"
-                                    type="text"
-                                    placeholder="CIUDAD"
-                                    autoComplete="address-level2"
-                                    required
-                                />
+                                <input id="ciudad" type="text" placeholder="CIUDAD"
+                                    value={form.ciudad} onChange={set("ciudad")}
+                                    autoComplete="address-level2" required />
                             </div>
                         </div>
 
-                        {/* Fila completa (usuario y password) */}
                         <div className="register-row-span">
                             <div>
-                                <label className="form-label" htmlFor="usuario">
-                                    Usuario
-                                </label>
+                                <label className="form-label" htmlFor="usuario">Usuario</label>
                                 <div className="input-wrapper">
                                     <User className="input-icon" size={18} />
-                                    <input
-                                        id="usuario"
-                                        name="usuario"
-                                        type="text"
-                                        placeholder="USUARIO"
-                                        autoComplete="username"
-                                        required
-                                    />
+                                    <input id="usuario" type="text" placeholder="USUARIO"
+                                        value={form.usuario} onChange={set("usuario")}
+                                        autoComplete="username" required />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="form-label" htmlFor="password">
-                                    Contraseña
-                                </label>
+                                <label className="form-label" htmlFor="contrasenia">Contraseña</label>
                                 <div className="input-wrapper">
                                     <Lock className="input-icon" size={18} />
-                                    <input
-                                        id="password"
-                                        name="password"
-                                        type="password"
-                                        placeholder="CONTRASEÑA"
-                                        autoComplete="new-password"
-                                        required
-                                    />
+                                    <input id="contrasenia" type="password" placeholder="CONTRASEÑA"
+                                        value={form.contrasenia} onChange={set("contrasenia")}
+                                        autoComplete="new-password" required />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Botón */}
-                        <button className="btn-register" type="submit">
-                            Crear cuenta
+                        <button className="btn-register" type="submit" disabled={loading}
+                            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                            {loading
+                                ? <><Loader size={18} className="spin" /> Registrando...</>
+                                : "Crear cuenta"
+                            }
                         </button>
 
                         <div className="recover-hint">
-                            ¿Ya tienes Cuenta?{" "}
-                            <button
-                                type="button"
-                                className="link-inline"
-                                onClick={() => navigate("/login")}
-                            >
+                            ¿Ya tienes cuenta?{" "}
+                            <button type="button" className="link-inline" onClick={() => navigate("/login")}>
                                 Inicia sesión
                             </button>
                         </div>
@@ -286,15 +244,24 @@ const RegistroUsuario = () => {
                 </section>
             </main>
 
-            {/* FOOTER */}
             <footer className="register-footer">
                 <div className="footer-content">
                     <span className="red-text">MYSA</span> • Plataforma de registro
-                    <span className="copyright">
-                        © {new Date().getFullYear()} Todos los derechos reservados.
-                    </span>
+                    <span className="copyright">© {new Date().getFullYear()} Todos los derechos reservados.</span>
                 </div>
             </footer>
+
+            <style>{`
+                @keyframes fadeInDown {
+                    from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+                    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+                }
+                .spin { animation: spin 1s linear infinite; }
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to   { transform: rotate(360deg); }
+                }
+            `}</style>
         </div>
     );
 };

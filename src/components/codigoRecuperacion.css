@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;900&family=Barlow+Condensed:wght@700;900&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ── ROOT ── */
+.code-screen {
+    width: 100vw;
+    min-height: 100vh;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Barlow', sans-serif;
+}
+
+/* ── BACK BUTTON ── */
+.code-screen>div {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #121621;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin: 16px 40px 0;
+    cursor: pointer;
+    user-select: none;
+    width: fit-content;
+}
+
+.code-screen>div:hover {
+    color: #c1272d;
+}
+
+/* ── CONTAINER ── */
+.code-screen {
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+/* ── CARD WRAPPER ── */
+.code-screen>h1 {
+    display: none;
+    /* se oculta el h1 suelto, el título va dentro de la card */
+}
+
+/* Centramos el form como card */
+.code-screen>form {
+    background: #fff;
+    padding: 56px 46px;
+    border-radius: 24px;
+    border: 1px solid #eee;
+    border-bottom: 6px solid #c1272d;
+    width: 100%;
+    max-width: 460px;
+    margin: 40px auto 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.code-screen>form:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+}
+
+/* ── INPUT CÓDIGO ── */
+.code-screen>form input {
+    width: 100%;
+    padding: 18px 20px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #121621;
+    background: #f9f9f9;
+    outline: none;
+    text-align: center;
+    letter-spacing: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.code-screen>form input:focus {
+    border-color: #c1272d;
+    box-shadow: 0 0 0 3px rgba(193, 39, 45, 0.08);
+    background: #fff;
+}
+
+/* ── ERROR ── */
+.code-screen>form p {
+    color: #c1272d;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-align: center;
+    width: 100%;
+}
+
+/* ── BOTONES ── */
+.code-screen>form button[type="submit"],
+.code-screen>form button:first-of-type {
+    width: 100%;
+    padding: 15px;
+    background: #121621;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 4px;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.code-screen>form button[type="submit"]:hover,
+.code-screen>form button:first-of-type:hover {
+    background: #c1272d;
+    transform: translateY(-2px);
+}
+
+.code-screen>form button[type="submit"]:active,
+.code-screen>form button:first-of-type:active {
+    transform: translateY(0);
+}
+
+.code-screen>form button[type="submit"]:disabled,
+.code-screen>form button:first-of-type:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ── BOTÓN REENVIAR ── */
+.code-screen>form button[type="button"] {
+    background: none;
+    border: none;
+    color: #c1272d;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: opacity 0.2s;
+}
+
+.code-screen>form button[type="button"]:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 520px) {
+    .code-screen>form {
+        padding: 40px 30px;
+        margin: 30px 16px 60px;
+    }
+
+    .code-screen>div {
+        margin: 16px 20px 0;
+    }
+
+    .code-screen>form input {
+        font-size: 1.6rem;
+        letter-spacing: 8px;
+    }
+}
+
+.code-icon-wrap {
+    background: #c1272d;
+    color: #fff;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.code-label {
+    color: #c1272d;
+    font-weight: 900;
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.code-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #121621;
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.code-divider {
+    width: 40px;
+    height: 4px;
+    background: #c1272d;
+    margin-bottom: 20px;
+}

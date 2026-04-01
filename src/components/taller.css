@@ -187,6 +187,10 @@ textarea:focus {
     transition: 0.3s;
 }
 
+.taller-nav{
+    color: #121621;
+}
+
 .upload-box:hover {
     border-color: #c1272d;
     color: #c1272d;
