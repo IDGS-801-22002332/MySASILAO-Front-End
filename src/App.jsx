@@ -15,6 +15,7 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import CodigoRecuperacion from "./components/codigoRecuperacion.jsx";
 import CambiarContrasenia from "./components/cambiarContrasenia.jsx";
 import { Navigate } from "react-router-dom";
+import { Tractor } from 'lucide-react'
 
 function App() {
     return (
