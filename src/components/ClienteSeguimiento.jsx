@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, CheckCircle2, XCircle, User, Lock, ClipboardList, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Camera, CheckCircle2, XCircle, User, Lock, ClipboardList, RefreshCw, Image } from 'lucide-react';
 import { getSession, clearSession } from './authUtils';
 import './ClienteSeguimiento.css';
 
-const API_URL = 'http://localhost:3000'; // Ajusta a tu URL de API
+const API_URL = 'http://localhost:3000'; 
 
 const ClienteSeguimiento = () => {
     const navigate = useNavigate();
@@ -27,10 +27,10 @@ const ClienteSeguimiento = () => {
     useEffect(() => {
         const session = getSession();
         console.log("SESSION ACTUAL:", session);
-        if (session && session.id) { // Asegúrate de que session.id esté presente
+        if (session && session.id) { 
             setIsLoggedIn(true);
             setUserData(session);
-            fetchOrdenes(session.id);  // Asegúrate de que pasas session.id
+            fetchOrdenes(session.id); 
         } else {
             setIsLoggedIn(false);
         }
@@ -41,7 +41,7 @@ const ClienteSeguimiento = () => {
         try {
             const response = await fetch(`${API_URL}/ordenes?rol=cliente&usuarioId=${usuarioId}`);
             const data = await response.json();
-            console.log('Órdenes obtenidas:', data);  // Verifica si se están obteniendo correctamente
+            console.log('Órdenes obtenidas:', data);  
             setOrdenes(data);
         } catch (error) {
             console.error('Error al cargar órdenes:', error);
@@ -67,7 +67,6 @@ const ClienteSeguimiento = () => {
 
         const formDataToSend = new FormData();
 
-        // Agregar datos del usuario desde la sesión
         formDataToSend.append('cliente_nombre', userData.nombre || '');
         formDataToSend.append('cliente_apellido_paterno', userData.apellidoPaterno || '');
         formDataToSend.append('cliente_apellido_materno', userData.apellidoMaterno || '');
@@ -212,7 +211,6 @@ const ClienteSeguimiento = () => {
 
                                 {error && <div className="error-message">{error}</div>}
 
-                                {/* Tarjeta de información del usuario */}
                                 {userData && (
                                     <div className="user-info-card">
                                         <div className="user-info-header">
@@ -310,7 +308,6 @@ const ClienteSeguimiento = () => {
                                                     key={orden.id}
                                                     className={`orden-card ${isOpen ? 'open' : ''}`}
                                                 >
-                                                    {/* HEADER tipo pestaña */}
                                                     <div
                                                         className="orden-tab"
                                                         onClick={() => toggleOrden(orden.id)}
@@ -330,10 +327,8 @@ const ClienteSeguimiento = () => {
                                                         </div>
                                                     </div>
 
-                                                    {/* CONTENIDO EXPANDIBLE */}
                                                     <div className={`orden-content ${isOpen ? 'show' : ''}`}>
                                                         <div className="orden-body">
-
                                                             <div className="orden-fecha">
                                                                 Fecha: {new Date(orden.fecha_creacion).toLocaleString()}
                                                             </div>
@@ -342,6 +337,35 @@ const ClienteSeguimiento = () => {
                                                                 <div className="orden-descripcion">
                                                                     <strong>Problema reportado:</strong>
                                                                     <p>{orden.descripcion_problema}</p>
+                                                                </div>
+                                                            )}
+
+                                                            {/* 🔥 SECCIÓN DE FOTOS AGREGADA */}
+                                                            {orden.fotos && orden.fotos.length > 0 && (
+                                                                <div className="orden-fotos">
+                                                                    <strong><Image size={14} /> Fotografías del equipo:</strong>
+                                                                    <div className="fotos-miniaturas" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                                                                        {orden.fotos.map((foto, idx) => (
+                                                                            <img
+                                                                                key={idx}
+                                                                                src={`${API_URL}${foto}`}
+                                                                                alt={`Foto ${idx + 1}`}
+                                                                                className="foto-thumbnail"
+                                                                                onClick={() => window.open(`${API_URL}${foto}`, '_blank')}
+                                                                                style={{
+                                                                                    width: '80px',
+                                                                                    height: '80px',
+                                                                                    objectFit: 'cover',
+                                                                                    borderRadius: '8px',
+                                                                                    cursor: 'pointer',
+                                                                                    border: '2px solid #e0e0e0',
+                                                                                    transition: 'transform 0.2s'
+                                                                                }}
+                                                                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                                                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                                                            />
+                                                                        ))}
+                                                                    </div>
                                                                 </div>
                                                             )}
 
@@ -373,7 +397,6 @@ const ClienteSeguimiento = () => {
                                                             )}
                                                         </div>
 
-                                                        {/* BOTONES */}
                                                         {mostrarBotonesDecision(orden) && (
                                                             <div className="orden-buttons">
                                                                 <button

@@ -821,3 +821,42 @@
     display: flex;
     gap: 10px;
 }
+/* Estilos para las miniaturas de fotos */
+.fotos-miniaturas {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.foto-thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid #e0e0e0;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.foto-thumbnail:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    border-color: #667eea;
+}
+
+/* Sección de fotos en la orden */
+.orden-fotos {
+    margin: 15px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.orden-fotos strong {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #333;
+    margin-bottom: 10px;
+}

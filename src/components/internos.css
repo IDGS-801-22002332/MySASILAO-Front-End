@@ -761,3 +761,79 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Estilos para la asignación de mecánico - TEXTO EN NEGRO */
+.asignacion-control {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.mecanico-select {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    font-size: 0.8rem;
+    outline: none;
+    transition: border 0.2s;
+    color: #000000; /* TEXTO NEGRO */
+}
+
+.mecanico-select option {
+    color: #000000; /* TEXTO NEGRO para las opciones */
+    background: white;
+}
+
+.mecanico-select:focus {
+    border-color: #c1272d;
+}
+
+.mecanico-select:disabled {
+    background: #f5f5f5;
+    color: #666666;
+}
+
+.btn-asignar-mecanico {
+    background: #c1272d;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-asignar-mecanico:hover:not(:disabled) {
+    background: #a01f24;
+    transform: translateY(-1px);
+}
+
+.btn-asignar-mecanico:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.mecanico-asignado {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #e8f5e9;
+    padding: 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: #2e7d32;
+}
+
+.mecanico-asignado span {
+    color: #000000; /* Texto negro para la información del mecánico asignado */
+}
+
+.fecha-asignacion {
+    color: #666666;
+    font-size: 0.75rem;
+}
