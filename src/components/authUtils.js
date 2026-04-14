@@ -2,7 +2,7 @@ const SESSION_KEY = 'msa_session';
 
 /**
  * Guarda la sesión tras un login exitoso
- * @param {{ usuario: string, rol: string }} data
+ * @param {{ usuario: string, rol: string, id: number }} data
  */
 export const saveSession = (data) => {
     localStorage.setItem(SESSION_KEY, JSON.stringify(data));
@@ -10,7 +10,7 @@ export const saveSession = (data) => {
 
 /**
  * Devuelve el objeto de sesión actual o null si no hay sesión
- * @returns {{ usuario: string, rol: string } | null}
+ * @returns {{ usuario: string, rol: string, id: number }} | null
  */
 export const getSession = () => {
     try {

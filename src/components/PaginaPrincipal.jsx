@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { isInterno, isMecanicos } from './authUtils';
+import { isInterno, isMecanicos, getSession } from './authUtils';
 import {
-    Tractor, User, Phone, MapPin, Tag, X, Menu, Pencil, Check, LogOut, AlertCircle
+    Tractor, User, Phone, MapPin, Tag, X, Menu, Pencil, Check, LogOut, AlertCircle,
+    Plus, Trash2, Image as ImageIcon, Upload, RefreshCw
 } from 'lucide-react';
 import './PaginaPrincipal.css';
 
@@ -20,35 +21,157 @@ const PaginaPrincipal = () => {
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState('');
 
+    // Estado para el carrusel
+    const [slides, setSlides] = useState([]);
+    const [loadingCarrusel, setLoadingCarrusel] = useState(false);
+    const [showCarruselModal, setShowCarruselModal] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const [editSlideModal, setEditSlideModal] = useState(false);
+    const [editingSlide, setEditingSlide] = useState(null);
+    const [editSlideForm, setEditSlideForm] = useState({ title: '', label: '' });
+
     const userRole = localStorage.getItem('role');
     const isAdmin = isInterno();
     const isMecanico = isMecanicos();
-    
     const canSeeInternos = isAdmin || isMecanico;
-
-    const slides = [
-        {
-            image: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&q=80&w=1200",
-            title: "Nueva Serie 2026",
-            label: "Lanzamiento Exclusivo"
-        },
-        {
-            image: "https://images.unsplash.com/photo-1530267981375-f0de937f5f13?auto=format&fit=crop&q=80&w=1200",
-            title: "Refacciones Originales",
-            label: "Mantenimiento Premium"
-        },
-        {
-            image: "https://images.unsplash.com/photo-1605000797499-95a51c5269ae?auto=format&fit=crop&q=80&w=1200",
-            title: "Soluciones de Riego",
-            label: "Eficiencia Hídrica"
-        }
-    ];
 
     const heroAd = {
         titleBlack: "Tecnología",
         titleRed: "de Vanguardia",
-        desc: "Equipos de última generación para maximizar tus cosechas con inteligencia artificial aplicada al campo.",
+        desc: "Equipos de última generación para maximizar tus cosechas y mejorar tu vida.",
         badge: "INNOVACIÓN AGRÍCOLA 2026"
+    };
+
+    // Cargar imágenes del carrusel desde el backend
+    const fetchCarrusel = async () => {
+        setLoadingCarrusel(true);
+        try {
+            const response = await fetch(`${API_BASE}/carrusel`);
+            const data = await response.json();
+            console.log('Datos del carrusel:', data);
+
+            if (Array.isArray(data) && data.length > 0) {
+                // 🔥 SOLO usar imágenes de la base de datos
+                const slidesFormateados = data.map(item => ({
+                    id: item.id,
+                    image: `${API_BASE}${item.imagen}`,
+                    title: '',
+                    label: ''
+                }));
+                setSlides(slidesFormateados);
+            } else {
+                // 🔥 Si no hay imágenes en la BD, mostrar un mensaje o carrusel vacío
+                setSlides([]); // 👈 Vacío, no imágenes por defecto
+            }
+        } catch (error) {
+            console.error('Error al cargar carrusel:', error);
+            setSlides([]); // 👈 Vacío en caso de error
+        } finally {
+            setLoadingCarrusel(false);
+        }
+    };
+
+    // Subir nueva imagen al carrusel (simplificado - sin título ni label)
+    const handleUploadImage = async () => {
+        if (!selectedImage) {
+            alert('Por favor selecciona una imagen');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('imagen', selectedImage);
+
+        setUploading(true);
+        try {
+            const response = await fetch(`${API_BASE}/carrusel`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('✅ Imagen agregada exitosamente');
+                setSelectedImage(null);
+                setShowCarruselModal(false);
+                fetchCarrusel(); // Recargar lista
+                // Reiniciar el input file
+                document.getElementById('file-input').value = '';
+            } else {
+                alert('❌ Error al subir la imagen');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error de conexión');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    // Eliminar la última imagen del carrusel
+    const handleDeleteLastImage = async () => {
+        if (slides.length === 0) {
+            alert('No hay imágenes para eliminar');
+            return;
+        }
+
+        const ultimaImagen = slides[slides.length - 1];
+
+        if (!confirm(`¿Eliminar esta imagen? Esta acción no se puede deshacer.`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/carrusel/${ultimaImagen.id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert('✅ Imagen eliminada exitosamente');
+                fetchCarrusel(); // Recargar lista
+            } else {
+                alert('❌ Error al eliminar la imagen');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error de conexión');
+        }
+    };
+
+    // Editar título y label de una imagen
+    const handleEditSlide = async () => {
+        if (!editingSlide) return;
+
+        try {
+            const response = await fetch(`${API_BASE}/carrusel/${editingSlide.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: editSlideForm.title,
+                    label: editSlideForm.label
+                })
+            });
+
+            if (response.ok) {
+                alert('✅ Información actualizada');
+                setEditSlideModal(false);
+                setEditingSlide(null);
+                fetchCarrusel();
+            } else {
+                alert('❌ Error al actualizar');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Error de conexión');
+        }
+    };
+
+    const openEditSlide = (slide) => {
+        setEditingSlide(slide);
+        setEditSlideForm({
+            title: slide.title || '',
+            label: slide.label || ''
+        });
+        setEditSlideModal(true);
     };
 
     const fetchAnuncio = async () => {
@@ -65,13 +188,16 @@ const PaginaPrincipal = () => {
 
     useEffect(() => {
         fetchAnuncio();
+        fetchCarrusel();
     }, []);
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-        }, 5000);
-        return () => clearInterval(timer);
+        if (slides.length > 0) {
+            const timer = setInterval(() => {
+                setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+            }, 5000);
+            return () => clearInterval(timer);
+        }
     }, [slides.length]);
 
     const openEdit = () => {
@@ -109,6 +235,7 @@ const PaginaPrincipal = () => {
 
     const triggerLogout = () => {
         localStorage.clear();
+        sessionStorage.clear();
         setMenuOpen(false);
         setShowLogoutAlert(true);
         setTimeout(() => {
@@ -118,6 +245,7 @@ const PaginaPrincipal = () => {
 
     return (
         <div className="landing-container">
+            {/* ... (código existente de alertas y modales) ... */}
             {showLogoutAlert && (
                 <div style={{
                     position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)',
@@ -136,106 +264,143 @@ const PaginaPrincipal = () => {
                 </div>
             )}
 
-            {showEditModal && (
-                <div
-                    style={{
-                        position: 'fixed', inset: 0, zIndex: 9999,
-                        background: 'rgba(0, 0, 0, 0.15)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}
-                    onClick={() => setShowEditModal(false)}
-                >
-                    <div
-                        style={{
-                            background: '#ffffff', borderRadius: 10, padding: 28,
-                            width: '100%', maxWidth: 420, boxSizing: 'border-box',
-                            boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
-                        }}
-                        onClick={e => e.stopPropagation()}
-                    >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                            <h2 style={{ margin: 0, fontSize: 14, fontWeight: 700, letterSpacing: 1, color: '#000000', textTransform: 'uppercase' }}>
-                                Modificar Anuncio
-                            </h2>
-                            <button
-                                onClick={() => setShowEditModal(false)}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#999' }}
-                            >
-                                <X size={18} />
+            {/* Modal para subir imagen al carrusel */}
+            {showCarruselModal && (
+                <div className="modal-overlay" onClick={() => setShowCarruselModal(false)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3><Plus size={20} /> Agregar imagen al carrusel</h3>
+                            <button onClick={() => setShowCarruselModal(false)}><X size={20} /></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="form-group">
+                                <label>Seleccionar imagen *</label>
+                                <input
+                                    id="file-input"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => setSelectedImage(e.target.files[0])}
+                                    className="file-input"
+                                />
+                            </div>
+                            {selectedImage && (
+                                <div className="image-preview">
+                                    <img src={URL.createObjectURL(selectedImage)} alt="Vista previa" />
+                                    <p>{selectedImage.name}</p>
+                                </div>
+                            )}
+                        </div>
+                        <div className="modal-footer">
+                            <button onClick={() => setShowCarruselModal(false)} className="btn-cancel">Cancelar</button>
+                            <button onClick={handleUploadImage} disabled={uploading} className="btn-submit">
+                                {uploading ? <RefreshCw size={16} className="spin" /> : <Upload size={16} />}
+                                {uploading ? 'Subiendo...' : 'Subir imagen'}
                             </button>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                            {[
-                                { key: 'titulo', label: 'Título', placeholder: 'Ej. Bono de $50,000 MXN en Serie 8700' },
-                                { key: 'descripcion', label: 'Descripción', placeholder: 'Válido al mencionar este anuncio...' },
-                                { key: 'pie', label: 'Pie de anuncio', placeholder: 'Texto secundario opcional' },
-                            ].map(({ key, label, placeholder }) => (
-                                <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                    <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, color: '#aaa', textTransform: 'uppercase' }}>
-                                        {label}
-                                    </label>
-                                    {key === 'descripcion' ? (
-                                        <textarea
-                                            rows={3}
-                                            value={editForm[key]}
-                                            onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))}
-                                            placeholder={placeholder}
-                                            style={{
-                                                background: '#fff', border: '1px solid rgba(0,0,0,0.15)',
-                                                borderRadius: 4, padding: '6px 10px',
-                                                color: '#000', fontSize: 12, resize: 'vertical',
-                                                fontFamily: 'inherit',
-                                            }}
-                                        />
-                                    ) : (
-                                        <input
-                                            value={editForm[key]}
-                                            onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))}
-                                            placeholder={placeholder}
-                                            style={{
-                                                background: '#fff', border: '1px solid rgba(0,0,0,0.15)',
-                                                borderRadius: 4, padding: '6px 10px',
-                                                color: '#000', fontSize: 12,
-                                            }}
-                                        />
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-
-                        {saveError && (
-                            <p style={{ color: '#e55', fontSize: 11, marginTop: 10 }}>{saveError}</p>
-                        )}
-
-                        <button
-                            className="btn-modificar-ad"
-                            style={{
-                                marginTop: 16, width: '100%', display: 'flex',
-                                alignItems: 'center', justifyContent: 'center', gap: 6,
-                            }}
-                            onClick={handleSave}
-                            disabled={saving}
-                        >
-                            {saving ? 'GUARDANDO...' : (<><Check size={14} /> GUARDAR CAMBIOS</>)}
-                        </button>
                     </div>
                 </div>
             )}
 
+            {/* Modal para editar título/label de imagen */}
+            {editSlideModal && editingSlide && (
+                <div className="modal-overlay" onClick={() => setEditSlideModal(false)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3><Pencil size={20} /> Editar información</h3>
+                            <button onClick={() => setEditSlideModal(false)}><X size={20} /></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="form-group">
+                                <label>Título</label>
+                                <input
+                                    type="text"
+                                    value={editSlideForm.title}
+                                    onChange={(e) => setEditSlideForm({ ...editSlideForm, title: e.target.value })}
+                                    placeholder="Ej: Nueva Serie 2026"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Etiqueta</label>
+                                <input
+                                    type="text"
+                                    value={editSlideForm.label}
+                                    onChange={(e) => setEditSlideForm({ ...editSlideForm, label: e.target.value })}
+                                    placeholder="Ej: Lanzamiento Exclusivo"
+                                />
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button onClick={() => setEditSlideModal(false)} className="btn-cancel">Cancelar</button>
+                            <button onClick={handleEditSlide} className="btn-submit">
+                                <Check size={16} /> Guardar cambios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal para editar anuncio (existente) */}
+            {showEditModal && (
+                <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3><Pencil size={20} /> Modificar Anuncio</h3>
+                            <button onClick={() => setShowEditModal(false)}><X size={20} /></button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="form-group">
+                                <label>Título</label>
+                                <input
+                                    type="text"
+                                    value={editForm.titulo}
+                                    onChange={e => setEditForm(f => ({ ...f, titulo: e.target.value }))}
+                                    placeholder="Ej. Bono de $50,000 MXN en Serie 8700"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Descripción</label>
+                                <textarea
+                                    rows={3}
+                                    value={editForm.descripcion}
+                                    onChange={e => setEditForm(f => ({ ...f, descripcion: e.target.value }))}
+                                    placeholder="Válido al mencionar este anuncio..."
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Pie de anuncio</label>
+                                <input
+                                    type="text"
+                                    value={editForm.pie}
+                                    onChange={e => setEditForm(f => ({ ...f, pie: e.target.value }))}
+                                    placeholder="Texto secundario opcional"
+                                />
+                            </div>
+                            {saveError && <p className="error-text">{saveError}</p>}
+                        </div>
+                        <div className="modal-footer">
+                            <button onClick={() => setShowEditModal(false)} className="btn-cancel">Cancelar</button>
+                            <button onClick={handleSave} disabled={saving} className="btn-submit">
+                                {saving ? <RefreshCw size={16} className="spin" /> : <Check size={16} />}
+                                {saving ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Anuncio lateral (existente) */}
             {showAd && anuncio && (
                 <div className="ads-sidebar-custom">
                     <div className="custom-ad-card">
                         <button className="custom-ad-close" onClick={() => setShowAd(false)}>
                             <X size={18} stroke="white" strokeWidth={2} />
                         </button>
-
                         <div className="custom-ad-header">
                             <div className="custom-ad-icon-container">
                                 <Tag className="custom-ad-icon" />
                             </div>
                             <span className="custom-ad-badge">Descubre lo nuevo</span>
                         </div>
-
                         <div className="custom-ad-body">
                             <h2 className="custom-ad-title">{anuncio.titulo}</h2>
                             <p className="custom-ad-text">{anuncio.descripcion}</p>
@@ -245,11 +410,7 @@ const PaginaPrincipal = () => {
                                 </p>
                             )}
                             {isAdmin && (
-                                <button
-                                    className="btn-modificar-ad"
-                                    style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}
-                                    onClick={openEdit}
-                                >
+                                <button className="btn-modificar-ad" onClick={openEdit}>
                                     <Pencil size={13} /> Modificar
                                 </button>
                             )}
@@ -258,6 +419,7 @@ const PaginaPrincipal = () => {
                 </div>
             )}
 
+            {/* Navbar (existente) */}
             <nav className="navbar">
                 <div className="logo-container">
                     <Tractor size={35} className="logo-icon" strokeWidth={1.5} />
@@ -278,60 +440,64 @@ const PaginaPrincipal = () => {
                     <a href="/acercaDe" onClick={() => setMenuOpen(false)}>Acerca De</a>
                     <a href="/cliente" onClick={() => setMenuOpen(false)}>Solicitudes</a>
                     {isAdmin && (
-                        <a href="/registroMecanicos" onClick={() => setMenuOpen(false)}>
-                            Registrar
-                        </a>
+                        <a href="/registroMecanicos" onClick={() => setMenuOpen(false)}>Registrar</a>
                     )}
                     {isAdmin && (
-                        <a href="/internos" onClick={() => setMenuOpen(false)}>
-                            Internos
-                        </a>
+                        <a href="/internos" onClick={() => setMenuOpen(false)}>Internos</a>
                     )}
                     {canSeeInternos && (
-                        <a href="/taller" onClick={() => setMenuOpen(false)}>
-                            Mecánicos
-                        </a>
+                        <a href="/taller" onClick={() => setMenuOpen(false)}>Mecánicos</a>
                     )}
                     <a href="/login" onClick={() => setMenuOpen(false)}>
                         <User size={20} className="nav-user-icon" />
                     </a>
-                    <button
-                        onClick={triggerLogout}
-                        className="logout-nav-btn"
-                        style={{
-                            background: 'none', border: 'none', color: '#e53e3e',
-                            cursor: 'pointer', display: 'flex', alignItems: 'center',
-                            gap: '8px', padding: '0 15px', fontSize: '1rem', fontWeight: '600'
-                        }}
-                    >
+                    <button onClick={triggerLogout} className="logout-nav-btn">
                         <LogOut size={20} />
                     </button>
                 </div>
             </nav>
 
+            {/* Carrusel con botones de administración */}
             <section className="top-carousel">
-                <div className="carousel-track" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-                    {slides.map((slide, index) => (
-                        <div className="slide-item" key={index}>
-                            <img src={slide.image} alt={slide.title} />
-                            <div className="slide-overlay">
-                                <span className="slide-label">{slide.label}</span>
-                                <h4 className="slide-name">{slide.title}</h4>
-                            </div>
+                {isAdmin && (
+                    <div className="carrusel-admin-buttons">
+                        <button onClick={() => setShowCarruselModal(true)} className="admin-btn add-btn">
+                            <Plus size={16} /> Agregar imagen
+                        </button>
+                        <button onClick={handleDeleteLastImage} className="admin-btn delete-btn">
+                            <Trash2 size={16} /> Eliminar última
+                        </button>
+                    </div>
+                )}
+
+                {slides.length === 0 ? (
+                    <div className="carrusel-empty">
+                        <p>No hay imágenes en el carrusel</p>
+                        {isAdmin && <small>Haz clic en "Agregar imagen" para añadir una</small>}
+                    </div>
+                ) : (
+                    <>
+                        <div className="carousel-track" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
+                            {slides.map((slide, index) => (
+                                <div className="slide-item" key={slide.id}>
+                                    <img src={slide.image} alt={`Slide ${index + 1}`} />
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
-                <div className="carousel-dots">
-                    {slides.map((_, i) => (
-                        <div
-                            key={i}
-                            className={`dot ${currentSlide === i ? 'active' : ''}`}
-                            onClick={() => setCurrentSlide(i)}
-                        />
-                    ))}
-                </div>
+                        <div className="carousel-dots">
+                            {slides.map((_, i) => (
+                                <div
+                                    key={i}
+                                    className={`dot ${currentSlide === i ? 'active' : ''}`}
+                                    onClick={() => setCurrentSlide(i)}
+                                />
+                            ))}
+                        </div>
+                    </>
+                )}
             </section>
 
+            {/* Resto del contenido (hero-section, stats-bar, footer, etc.) - mantener igual */}
             <main className="hero-section">
                 <div className="hero-content">
                     <div className="hero-badge">

@@ -4,29 +4,29 @@ import { useNavigate } from "react-router-dom";
 import './Productos.css';
 
 const CATEGORIA_MAP = {
-    'Todos':        '',
-    'Tractores':    'tractor',
-    'Sembradora':   'sembradora',
-    'Subsuelo':     'svh',
+    'Todos': '',
+    'Tractores': 'tractor',
+    'Sembradora': 'sembradora',
+    'Subsuelo': 'svh',
     'Cultivadoras': 'cultivadora',
-    'Otros':        'otros',
+    'Otros': 'otros',
 };
 
 const CATEGORIA_ICON = {
-    'Todos':        '',
-    'Tractores':    '',
-    'Sembradora':   '',
-    'Subsuelo':     '',
+    'Todos': '',
+    'Tractores': '',
+    'Sembradora': '',
+    'Subsuelo': '',
     'Cultivadoras': '',
-    'Otros':        '',
+    'Otros': '',
 };
 
 const CATEGORIA_KEY_MAP = {
-    'Tractores':    'tractor',
-    'Sembradora':   'sembradora',
-    'Subsuelo':     'svh',
+    'Tractores': 'tractor',
+    'Sembradora': 'sembradora',
+    'Subsuelo': 'svh',
     'Cultivadoras': 'cultivadora',
-    'Otros':        'otros',
+    'Otros': 'otros',
 };
 
 const Productos = () => {
@@ -154,6 +154,7 @@ const Productos = () => {
                                 ID: {producto.IdProducto}
                             </p>
                         </div>
+
                     </div>
                 ))}
 
