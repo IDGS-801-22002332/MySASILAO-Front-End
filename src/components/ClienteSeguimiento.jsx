@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, CheckCircle2, XCircle, User, Lock, ClipboardList, RefreshCw, Image } from 'lucide-react';
+import { 
+    ArrowLeft, Camera, CheckCircle2, XCircle, User, Lock, ClipboardList, RefreshCw, 
+    Image, DollarSign, Wrench, Package, MessageSquare, CheckCircle, AlertCircle,
+    Clock, Phone, Mail, Calendar, FileText, ThumbsUp, ThumbsDown, PlusCircle,
+    Loader2, CreditCard, Tag, ChevronDown, ChevronUp, Eye, Maximize2, Minimize2
+} from 'lucide-react';
 import { getSession, clearSession } from './authUtils';
 import './ClienteSeguimiento.css';
 
-const API_URL = 'http://localhost:3000'; 
+const API_URL = 'http://localhost:3000';
 
 const ClienteSeguimiento = () => {
     const navigate = useNavigate();
@@ -18,8 +23,9 @@ const ClienteSeguimiento = () => {
     const [fotos, setFotos] = useState([]);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
-
+    const [processingOrder, setProcessingOrder] = useState(null);
     const [ordenAbierta, setOrdenAbierta] = useState(null);
+
     const toggleOrden = (id) => {
         setOrdenAbierta(prev => (prev === id ? null : id));
     };
@@ -27,10 +33,10 @@ const ClienteSeguimiento = () => {
     useEffect(() => {
         const session = getSession();
         console.log("SESSION ACTUAL:", session);
-        if (session && session.id) { 
+        if (session && session.id) {
             setIsLoggedIn(true);
             setUserData(session);
-            fetchOrdenes(session.id); 
+            fetchOrdenes(session.id);
         } else {
             setIsLoggedIn(false);
         }
@@ -41,10 +47,11 @@ const ClienteSeguimiento = () => {
         try {
             const response = await fetch(`${API_URL}/ordenes?rol=cliente&usuarioId=${usuarioId}`);
             const data = await response.json();
-            console.log('Órdenes obtenidas:', data);  
+            console.log('Órdenes obtenidas:', data);
             setOrdenes(data);
         } catch (error) {
             console.error('Error al cargar órdenes:', error);
+            setError('Error al cargar tus órdenes');
         } finally {
             setLoading(false);
         }
@@ -66,7 +73,6 @@ const ClienteSeguimiento = () => {
         setError('');
 
         const formDataToSend = new FormData();
-
         formDataToSend.append('cliente_nombre', userData.nombre || '');
         formDataToSend.append('cliente_apellido_paterno', userData.apellidoPaterno || '');
         formDataToSend.append('cliente_apellido_materno', userData.apellidoMaterno || '');
@@ -88,9 +94,10 @@ const ClienteSeguimiento = () => {
             if (response.ok) {
                 setFormData({ descripcion_problema: '' });
                 setFotos([]);
-                document.getElementById('fotos-input').value = '';
+                const fileInput = document.getElementById('fotos-input');
+                if (fileInput) fileInput.value = '';
                 await fetchOrdenes(userData.id);
-                alert('Solicitud creada exitosamente');
+                alert('✅ Solicitud creada exitosamente');
             } else {
                 const errorData = await response.json();
                 setError(errorData.message || 'Error al crear la solicitud');
@@ -102,18 +109,40 @@ const ClienteSeguimiento = () => {
         }
     };
 
-    const handleAceptarRechazar = async (ordenId, aceptado) => {
+    const handleAceptarRechazar = useCallback(async (ordenId, aceptado) => {
+        if (processingOrder === ordenId) {
+            return;
+        }
+
+        const ordenActual = ordenes.find(o => o.id === ordenId);
+        
+        if (ordenActual.aceptacion_cliente !== null && ordenActual.aceptacion_cliente !== undefined) {
+            alert('⚠️ Esta cotización ya fue procesada');
+            return;
+        }
+
+        if (ordenActual.status !== 'En proceso de aceptación') {
+            alert(`⚠️ No puedes procesar esta cotización porque la orden está en estado: ${ordenActual.status}`);
+            return;
+        }
+
+        if (!ordenActual.cotizacion_total || ordenActual.cotizacion_total <= 0) {
+            alert('⚠️ No hay una cotización válida');
+            return;
+        }
+
+        setProcessingOrder(ordenId);
+
         try {
             const response = await fetch(`${API_URL}/ordenes/${ordenId}/aceptar-cliente`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ aceptado })
             });
 
             if (response.ok) {
                 const result = await response.json();
+                
                 setOrdenes(prevOrdenes =>
                     prevOrdenes.map(orden =>
                         orden.id === ordenId
@@ -121,15 +150,26 @@ const ClienteSeguimiento = () => {
                             : orden
                     )
                 );
-                alert(aceptado ? 'Cotización aceptada - Buscando refacciones' : 'Cotización rechazada');
+                
+                const mensaje = aceptado 
+                    ? '✅ Cotización aceptada. El mecánico buscará las refacciones.' 
+                    : '❌ Cotización rechazada. Se ha cancelado la orden.';
+                alert(mensaje);
+                
+                await fetchOrdenes(userData.id);
+                setOrdenAbierta(null);
             } else {
                 const errorData = await response.json();
-                alert(errorData.message || 'Error al procesar la solicitud');
+                alert(`❌ Error: ${errorData.message || 'No se pudo procesar'}`);
+                await fetchOrdenes(userData.id);
             }
         } catch (error) {
-            alert('Error de conexión al servidor');
+            console.error('Error:', error);
+            alert('❌ Error de conexión al servidor');
+        } finally {
+            setProcessingOrder(null);
         }
-    };
+    }, [ordenes, userData?.id, fetchOrdenes]);
 
     const handleLogout = () => {
         clearSession();
@@ -140,19 +180,39 @@ const ClienteSeguimiento = () => {
 
     const getStatusColor = (status) => {
         const colors = {
-            'En revisión': '#ffc107',
-            'En proceso de aceptación': '#17a2b8',
-            'Busca de refacciones': '#007bff',
-            'Trabajo en proceso': '#6f42c1',
-            'Terminado': '#28a745',
-            'Entregado': '#20c997',
-            'Cancelado': '#dc3545'
+            'En revisión': '#f59e0b',
+            'En proceso de aceptación': '#3b82f6',
+            'Busca de refacciones': '#8b5cf6',
+            'Trabajo en proceso': '#ec489a',
+            'Terminado': '#10b981',
+            'Entregado': '#06b6d4',
+            'Cancelado': '#ef4444'
         };
-        return colors[status] || '#6c757d';
+        return colors[status] || '#6b7280';
     };
 
-    const mostrarBotonesDecision = (orden) => {
-        return orden.status === 'Busca de refacciones' && orden.aceptacion_cliente === null;
+    const getStatusIcon = (status) => {
+        switch(status) {
+            case 'Terminado': return <CheckCircle size={16} />;
+            case 'Cancelado': return <XCircle size={16} />;
+            case 'En revisión': return <Clock size={16} />;
+            case 'Trabajo en proceso': return <Wrench size={16} />;
+            case 'En proceso de aceptación': return <Clock size={16} />;
+            case 'Busca de refacciones': return <Package size={16} />;
+            default: return <Clock size={16} />;
+        }
+    };
+
+    const debeMostrarBotonesDecision = (orden) => {
+        return orden.status === 'En proceso de aceptación' && 
+               (orden.aceptacion_cliente === null || orden.aceptacion_cliente === undefined) &&
+               orden.cotizacion_total > 0 &&
+               processingOrder !== orden.id;
+    };
+
+    const formatearDinero = (monto) => {
+        if (!monto || monto <= 0) return null;
+        return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(monto);
     };
 
     return (
@@ -181,12 +241,7 @@ const ClienteSeguimiento = () => {
                         <strong>MAQUINARIA Y</strong> SERVICIO AGRÍCOLA
                     </div>
                     <div className="nav-icons">
-                        <div
-                            className="user-avatar"
-                            onClick={handleLogout}
-                            style={{ cursor: 'pointer' }}
-                            title="Cerrar Sesión"
-                        >
+                        <div className="user-avatar" onClick={handleLogout} title="Cerrar Sesión">
                             {userData?.usuario?.substring(0, 2).toUpperCase() || '??'}
                         </div>
                     </div>
@@ -194,7 +249,7 @@ const ClienteSeguimiento = () => {
 
                 <main className="cliente-main">
                     <header className="cliente-header">
-                        <div className="back-button" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+                        <div className="back-button" onClick={() => navigate("/")}>
                             <ArrowLeft size={14} /> VOLVER AL INICIO
                         </div>
                         <h1 className="cliente-title">ESTADO DE <span className="red-text">SERVICIO</span></h1>
@@ -223,11 +278,11 @@ const ClienteSeguimiento = () => {
                                                 <span>{userData.nombre} {userData.apellidoPaterno} {userData.apellidoMaterno}</span>
                                             </div>
                                             <div className="user-info-item">
-                                                <label>Teléfono:</label>
+                                                <label><Phone size={14} /> Teléfono:</label>
                                                 <span>{userData.telefono || 'No registrado'}</span>
                                             </div>
                                             <div className="user-info-item">
-                                                <label>Correo electrónico:</label>
+                                                <label><Mail size={14} /> Correo:</label>
                                                 <span>{userData.correo}</span>
                                             </div>
                                         </div>
@@ -236,7 +291,7 @@ const ClienteSeguimiento = () => {
 
                                 <form onSubmit={handleSubmit} className="cliente-form">
                                     <div className="form-group">
-                                        <label>Descripción del Problema *</label>
+                                        <label><FileText size={14} /> Descripción del Problema *</label>
                                         <textarea
                                             name="descripcion_problema"
                                             value={formData.descripcion_problema}
@@ -249,7 +304,7 @@ const ClienteSeguimiento = () => {
                                     </div>
 
                                     <div className="form-group">
-                                        <label>Fotografías (máx. 5)</label>
+                                        <label><Camera size={14} /> Fotografías (máx. 5)</label>
                                         <input
                                             id="fotos-input"
                                             type="file"
@@ -259,16 +314,17 @@ const ClienteSeguimiento = () => {
                                             className="form-file"
                                         />
                                         <small className="form-help">
-                                            Sube hasta 5 fotos del equipo o del problema (formatos: JPG, PNG, GIF)
+                                            <Image size={12} /> Sube hasta 5 fotos (JPG, PNG, GIF)
                                         </small>
                                         {fotos.length > 0 && (
                                             <div className="fotos-preview">
-                                                <small>{fotos.length} archivo(s) seleccionado(s)</small>
+                                                <small><Camera size={12} /> {fotos.length} archivo(s)</small>
                                             </div>
                                         )}
                                     </div>
 
                                     <button type="submit" disabled={submitting} className="btn-submit">
+                                        {submitting ? <Loader2 size={18} className="spin" /> : <PlusCircle size={18} />}
                                         {submitting ? 'ENVIANDO...' : 'CREAR SOLICITUD'}
                                     </button>
                                 </form>
@@ -282,19 +338,18 @@ const ClienteSeguimiento = () => {
                                     <h2 className="form-title">
                                         <ClipboardList size={20} /> MIS SOLICITUDES
                                     </h2>
-                                    <button
-                                        onClick={() => fetchOrdenes(userData?.id)}
-                                        className="btn-refresh"
-                                        title="Actualizar"
-                                    >
+                                    <button onClick={() => fetchOrdenes(userData?.id)} className="btn-refresh" title="Actualizar">
                                         <RefreshCw size={16} />
                                     </button>
                                 </div>
 
                                 {loading ? (
-                                    <div className="loading-spinner">Cargando órdenes...</div>
+                                    <div className="loading-spinner">
+                                        <Loader2 size={24} className="spin" /> Cargando...
+                                    </div>
                                 ) : ordenes.length === 0 ? (
                                     <div className="no-ordenes">
+                                        <ClipboardList size={48} color="#999" />
                                         <p>No tienes solicitudes registradas</p>
                                         <small>Completa el formulario para crear tu primera solicitud</small>
                                     </div>
@@ -302,119 +357,162 @@ const ClienteSeguimiento = () => {
                                     <div className="ordenes-list">
                                         {ordenes.map(orden => {
                                             const isOpen = ordenAbierta === orden.id;
+                                            const mostrarBotones = debeMostrarBotonesDecision(orden);
+                                            const estaProcesando = processingOrder === orden.id;
+                                            const tieneCotizacion = orden.cotizacion_total > 0;
 
                                             return (
-                                                <div
-                                                    key={orden.id}
-                                                    className={`orden-card ${isOpen ? 'open' : ''}`}
-                                                >
-                                                    <div
-                                                        className="orden-tab"
-                                                        onClick={() => toggleOrden(orden.id)}
-                                                    >
+                                                <div key={orden.id} className={`orden-card ${isOpen ? 'open' : ''}`}>
+                                                    {/* Header siempre visible */}
+                                                    <div className="orden-tab" onClick={() => toggleOrden(orden.id)}>
                                                         <div className="orden-tab-left">
-                                                            <div className="orden-id">Orden #{orden.id}</div>
-                                                            <div
-                                                                className="orden-status"
-                                                                style={{ backgroundColor: getStatusColor(orden.status) }}
-                                                            >
+                                                            <div className="orden-id">
+                                                                <Tag size={14} /> Orden #{orden.id}
+                                                            </div>
+                                                            <div className="orden-status" style={{ backgroundColor: getStatusColor(orden.status) }}>
+                                                                {getStatusIcon(orden.status)}
                                                                 {orden.status}
                                                             </div>
+                                                            {tieneCotizacion && orden.status === 'En proceso de aceptación' && (
+                                                                <div className="pending-badge">
+                                                                    <Clock size={12} /> ¡Requiere tu respuesta!
+                                                                </div>
+                                                            )}
                                                         </div>
-
                                                         <div className="orden-tab-right">
+                                                            <Calendar size={14} />
                                                             {new Date(orden.fecha_creacion).toLocaleDateString()}
+                                                            {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                                                         </div>
                                                     </div>
 
-                                                    <div className={`orden-content ${isOpen ? 'show' : ''}`}>
-                                                        <div className="orden-body">
-                                                            <div className="orden-fecha">
-                                                                Fecha: {new Date(orden.fecha_creacion).toLocaleString()}
-                                                            </div>
-
-                                                            {orden.descripcion_problema && (
-                                                                <div className="orden-descripcion">
-                                                                    <strong>Problema reportado:</strong>
-                                                                    <p>{orden.descripcion_problema}</p>
+                                                    {/* Contenido expandible CON SCROLL */}
+                                                    {isOpen && (
+                                                        <div className="orden-content-expanded">
+                                                            <div className="orden-content-scroll">
+                                                                {/* Fecha detallada */}
+                                                                <div className="info-row-expanded">
+                                                                    <Calendar size={16} />
+                                                                    <span><strong>Fecha de creación:</strong> {new Date(orden.fecha_creacion).toLocaleString()}</span>
                                                                 </div>
-                                                            )}
 
-                                                            {/* 🔥 SECCIÓN DE FOTOS AGREGADA */}
-                                                            {orden.fotos && orden.fotos.length > 0 && (
-                                                                <div className="orden-fotos">
-                                                                    <strong><Image size={14} /> Fotografías del equipo:</strong>
-                                                                    <div className="fotos-miniaturas" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
-                                                                        {orden.fotos.map((foto, idx) => (
-                                                                            <img
-                                                                                key={idx}
-                                                                                src={`${API_URL}${foto}`}
-                                                                                alt={`Foto ${idx + 1}`}
-                                                                                className="foto-thumbnail"
-                                                                                onClick={() => window.open(`${API_URL}${foto}`, '_blank')}
-                                                                                style={{
-                                                                                    width: '80px',
-                                                                                    height: '80px',
-                                                                                    objectFit: 'cover',
-                                                                                    borderRadius: '8px',
-                                                                                    cursor: 'pointer',
-                                                                                    border: '2px solid #e0e0e0',
-                                                                                    transition: 'transform 0.2s'
-                                                                                }}
-                                                                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                                                                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                                                                            />
-                                                                        ))}
+                                                                {/* Problema */}
+                                                                <div className="info-section-expanded">
+                                                                    <h4><FileText size={16} /> Problema reportado</h4>
+                                                                    <p className="problema-texto-expanded">{orden.descripcion_problema}</p>
+                                                                </div>
+
+                                                                {/* Fotos */}
+                                                                {orden.fotos && orden.fotos.length > 0 && (
+                                                                    <div className="info-section-expanded">
+                                                                        <h4><Image size={16} /> Fotografías del equipo</h4>
+                                                                        <div className="fotos-grid-expanded">
+                                                                            {orden.fotos.map((foto, idx) => (
+                                                                                <img
+                                                                                    key={idx}
+                                                                                    src={`${API_URL}${foto}`}
+                                                                                    alt={`Foto ${idx + 1}`}
+                                                                                    className="foto-expanded"
+                                                                                    onClick={() => window.open(`${API_URL}${foto}`, '_blank')}
+                                                                                />
+                                                                            ))}
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            )}
+                                                                )}
 
-                                                            {orden.refacciones_necesarias && (
-                                                                <div className="orden-refacciones">
-                                                                    <strong>Refacciones necesarias:</strong>
-                                                                    <pre>{orden.refacciones_necesarias}</pre>
-                                                                </div>
-                                                            )}
+                                                                {/* Cotización */}
+                                                                {tieneCotizacion && (
+                                                                    <div className={`info-section-expanded cotizacion-expanded ${orden.status === 'En proceso de aceptación' ? 'highlight' : ''}`}>
+                                                                        <h4><DollarSign size={16} /> Detalle de la Cotización</h4>
+                                                                        <div className="cotizacion-grid-expanded">
+                                                                            <div className="cotizacion-row">
+                                                                                <span className="label">Mano de obra:</span>
+                                                                                <span className="value">{formatearDinero(orden.mano_obra_costo)}</span>
+                                                                            </div>
+                                                                            {orden.refacciones_necesarias && (
+                                                                                <div className="cotizacion-row">
+                                                                                    <span className="label">Refacciones:</span>
+                                                                                    <span className="value refacciones">{orden.refacciones_necesarias}</span>
+                                                                                </div>
+                                                                            )}
+                                                                            <div className="cotizacion-row total">
+                                                                                <span className="label">Total:</span>
+                                                                                <span className="value">{formatearDinero(orden.cotizacion_total)}</span>
+                                                                            </div>
+                                                                            {orden.observaciones_mecanico && (
+                                                                                <div className="observaciones-expanded">
+                                                                                    <MessageSquare size={14} />
+                                                                                    <span>{orden.observaciones_mecanico}</span>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                        {orden.aceptacion_cliente === 1 && (
+                                                                            <div className="aceptada-expanded">
+                                                                                <ThumbsUp size={16} /> Cotización aceptada
+                                                                            </div>
+                                                                        )}
+                                                                        {orden.aceptacion_cliente === 0 && (
+                                                                            <div className="rechazada-expanded">
+                                                                                <ThumbsDown size={16} /> Cotización rechazada
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                )}
 
-                                                            {orden.cotizacion_total && (
-                                                                <div className="orden-cotizacion">
-                                                                    <strong>Cotización total:</strong> $
-                                                                    {parseFloat(orden.cotizacion_total).toLocaleString('es-MX')}
-                                                                </div>
-                                                            )}
+                                                                {/* Mecánico asignado */}
+                                                                {orden.mecanico_asignado_nombre && (
+                                                                    <div className="info-row-expanded">
+                                                                        <Wrench size={16} />
+                                                                        <span><strong>Mecánico asignado:</strong> {orden.mecanico_asignado_nombre}</span>
+                                                                    </div>
+                                                                )}
 
-                                                            {orden.mano_obra_costo && (
-                                                                <div className="orden-mano-obra">
-                                                                    <strong>Mano de obra:</strong> $
-                                                                    {parseFloat(orden.mano_obra_costo).toLocaleString('es-MX')}
+                                                                {/* Fechas importantes */}
+                                                                <div className="fechas-grid-expanded">
+                                                                    {orden.fecha_asignacion && (
+                                                                        <div className="fecha-item">
+                                                                            <Clock size={12} />
+                                                                            <span>Asignado: {new Date(orden.fecha_asignacion).toLocaleDateString()}</span>
+                                                                        </div>
+                                                                    )}
+                                                                    {orden.fecha_terminado && (
+                                                                        <div className="fecha-item">
+                                                                            <CheckCircle size={12} />
+                                                                            <span>Terminado: {new Date(orden.fecha_terminado).toLocaleDateString()}</span>
+                                                                        </div>
+                                                                    )}
+                                                                    {orden.fecha_entregado && (
+                                                                        <div className="fecha-item">
+                                                                            <Package size={12} />
+                                                                            <span>Entregado: {new Date(orden.fecha_entregado).toLocaleDateString()}</span>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
-                                                            )}
+                                                            </div>
 
-                                                            {orden.mecanico_asignado_nombre && (
-                                                                <div className="orden-mecanico">
-                                                                    <strong>Mecánico:</strong> {orden.mecanico_asignado_nombre}
+                                                            {/* Botones FIJOS en la parte inferior */}
+                                                            {mostrarBotones && (
+                                                                <div className="botones-fijos">
+                                                                    <button
+                                                                        className="btn-aceptar"
+                                                                        onClick={() => handleAceptarRechazar(orden.id, true)}
+                                                                        disabled={estaProcesando}
+                                                                    >
+                                                                        {estaProcesando ? <Loader2 size={20} className="spin" /> : <ThumbsUp size={20} />}
+                                                                        {estaProcesando ? 'PROCESANDO...' : 'ACEPTAR COTIZACIÓN'}
+                                                                    </button>
+                                                                    <button
+                                                                        className="btn-rechazar"
+                                                                        onClick={() => handleAceptarRechazar(orden.id, false)}
+                                                                        disabled={estaProcesando}
+                                                                    >
+                                                                        {estaProcesando ? <Loader2 size={20} className="spin" /> : <ThumbsDown size={20} />}
+                                                                        {estaProcesando ? 'PROCESANDO...' : 'RECHAZAR COTIZACIÓN'}
+                                                                    </button>
                                                                 </div>
                                                             )}
                                                         </div>
-
-                                                        {mostrarBotonesDecision(orden) && (
-                                                            <div className="orden-buttons">
-                                                                <button
-                                                                    className="btn-decision aceptar"
-                                                                    onClick={() => handleAceptarRechazar(orden.id, true)}
-                                                                >
-                                                                    <CheckCircle2 size={18} /> ACEPTAR
-                                                                </button>
-
-                                                                <button
-                                                                    className="btn-decision rechazar"
-                                                                    onClick={() => handleAceptarRechazar(orden.id, false)}
-                                                                >
-                                                                    <XCircle size={18} /> RECHAZAR
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                                    )}
                                                 </div>
                                             );
                                         })}

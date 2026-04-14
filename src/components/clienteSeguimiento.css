@@ -24,15 +24,6 @@
     color: #121621;
 }
 
-.portal-tag {
-    background: #c1272d;
-    color: white;
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 0.6rem;
-    font-weight: 900;
-}
-
 .nav-icons {
     display: flex;
     align-items: center;
@@ -211,7 +202,6 @@
     letter-spacing: 0.5px;
 }
 
-.form-input,
 .form-textarea {
     background: #f9fafb;
     border: 1px solid #eee;
@@ -221,18 +211,14 @@
     font-family: inherit;
     transition: all 0.3s;
     color: #121621;
+    resize: vertical;
+    min-height: 120px;
 }
 
-.form-input:focus,
 .form-textarea:focus {
     outline: none;
     border-color: #c1272d;
     background: white;
-}
-
-.form-textarea {
-    resize: vertical;
-    min-height: 120px;
 }
 
 .form-file {
@@ -308,6 +294,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #121621;
 }
 
 .btn-refresh:hover {
@@ -343,197 +330,346 @@
     border-radius: 10px;
 }
 
+/* ========== TARJETA DE ORDEN MEJORADA ========== */
 .orden-card {
-    border: 1px solid #f0f0f0;
-    border-radius: 16px;
-    padding: 1.25rem;
-    transition: all 0.3s;
     background: white;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
-.orden-card:hover {
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-    transform: translateY(-2px);
+.orden-card.open {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-.orden-header {
+/* Header de la orden (siempre visible) */
+.orden-tab {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid #f0f0f0;
+    padding: 16px 20px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.orden-tab:hover {
+    background: #e9ecef;
+}
+
+.orden-tab-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .orden-id {
-    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
     color: #c1272d;
-    font-size: 0.85rem;
 }
 
 .orden-status {
-    padding: 0.25rem 0.75rem;
+    padding: 4px 12px;
     border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 900;
+    font-size: 12px;
+    font-weight: 600;
     color: white;
-    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.orden-body {
+/* Color de texto para badges de pendiente */
+.pending-badge {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
     display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    font-size: 0.875rem;
-    color: #555;
+    align-items: center;
+    gap: 5px;
 }
 
-.orden-fecha {
+.orden-tab-right {
     display: flex;
-    justify-content: space-between;
-    font-size: 0.7rem;
-    color: #9ca3af;
+    align-items: center;
+    gap: 10px;
+    color: #4b5563;
+    font-size: 13px;
+}
+
+/* Contenido expandible */
+.orden-content-expanded {
+    border-top: 1px solid #e5e7eb;
+    background: white;
+}
+
+.orden-content-scroll {
+    padding: 20px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* Scroll personalizado */
+.orden-content-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.orden-content-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.orden-content-scroll::-webkit-scrollbar-thumb {
+    background: #c1272d;
+    border-radius: 3px;
+}
+
+/* Información expandida - TODOS LOS TEXTOS EN NEGRO */
+.info-row-expanded {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #1f2937;
+}
+
+.info-row-expanded span,
+.info-row-expanded strong {
+    color: #1f2937;
+}
+
+.info-section-expanded {
+    margin: 16px 0;
+}
+
+.info-section-expanded h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: #c1272d;
+    font-size: 14px;
     font-weight: 600;
 }
 
-.orden-hora {
-    font-size: 0.7rem;
-}
-
-.orden-descripcion {
+.problema-texto-expanded {
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 8px;
     line-height: 1.5;
-}
-
-.orden-descripcion strong,
-.orden-refacciones strong,
-.orden-cotizacion strong,
-.orden-mano-obra strong,
-.orden-mecanico strong {
-    color: #c1272d;
-    font-size: 0.7rem;
-    display: block;
-    margin-bottom: 0.25rem;
-}
-
-.orden-descripcion p {
     margin: 0;
-    color: #121621;
-    font-size: 0.85rem;
+    font-size: 14px;
+    color: #1f2937;
 }
 
-.orden-refacciones pre {
-    background: #f8f9fa;
-    padding: 0.75rem;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    margin-top: 0.25rem;
-    white-space: pre-wrap;
-    font-family: inherit;
-    color: #121621;
-    border: 1px solid #f0f0f0;
-}
-
-.orden-cotizacion,
-.orden-mano-obra {
-    font-size: 0.9rem;
-}
-
-.orden-cotizacion span,
-.orden-mano-obra span {
-    font-weight: 900;
-    color: #28a745;
-    font-size: 1rem;
-}
-
-.orden-mecanico {
-    font-size: 0.85rem;
-    color: #17a2b8;
-    padding: 0.5rem;
-    background: #e7f3ff;
-    border-radius: 8px;
-    margin-top: 0.25rem;
-}
-
-/* Botones de decisión */
-.orden-buttons {
+/* Fotos expandidas */
+.fotos-grid-expanded {
     display: flex;
-    gap: 0.75rem;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #f0f0f0;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-.btn-decision {
-    flex: 1;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 10px;
-    font-weight: 900;
-    font-size: 0.7rem;
+.foto-expanded {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
     cursor: pointer;
+    transition: transform 0.2s;
+    border: 2px solid #e5e7eb;
+}
+
+.foto-expanded:hover {
+    transform: scale(1.05);
+    border-color: #c1272d;
+}
+
+/* Cotización expandida - TEXTOS EN NEGRO */
+.cotizacion-expanded {
+    background: #f0fdf4;
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.cotizacion-expanded.highlight {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+}
+
+.cotizacion-grid-expanded {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cotizacion-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px dashed #d1d5db;
+}
+
+.cotizacion-row .label {
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.cotizacion-row .value {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.cotizacion-row.total {
+    border-bottom: none;
+    padding-top: 10px;
+    margin-top: 5px;
+}
+
+.cotizacion-row.total .label,
+.cotizacion-row.total .value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #059669;
+}
+
+.observaciones-expanded {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #f3f4f6;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #374151;
+}
+
+/* Estado de cotización - TEXTOS EN NEGRO */
+.aceptada-expanded {
+    background: #d4edda;
+    color: #155724;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.rechazada-expanded {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+/* Fechas grid - TEXTOS EN NEGRO */
+.fechas-grid-expanded {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.fecha-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #4b5563;
+}
+
+.fecha-item span {
+    color: #4b5563;
+}
+
+/* Botones fijos en la parte inferior */
+.botones-fijos {
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #e5e7eb;
+    position: sticky;
+    bottom: 0;
+}
+
+.btn-aceptar,
+.btn-rechazar {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    transition: all 0.3s;
-    letter-spacing: 0.5px;
+    gap: 10px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.btn-decision.aceptar {
-    background: #28a745;
+.btn-aceptar {
+    background: #10b981;
     color: white;
 }
 
-.btn-decision.aceptar:hover {
-    background: #1e7e34;
+.btn-aceptar:hover:not(:disabled) {
+    background: #059669;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-.btn-decision.rechazar {
-    background: #dc3545;
+.btn-rechazar {
+    background: #ef4444;
     color: white;
 }
 
-.btn-decision.rechazar:hover {
-    background: #bd2130;
+.btn-rechazar:hover:not(:disabled) {
+    background: #dc2626;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
-/* Mensajes de estado */
-.orden-mensaje-aceptado {
-    margin-top: 0.75rem;
-    padding: 0.75rem;
-    background: #d4edda;
-    color: #155724;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 900;
-    text-align: center;
-}
-
-.orden-mensaje-cancelado {
-    margin-top: 0.75rem;
-    padding: 0.75rem;
-    background: #f8d7da;
-    color: #721c24;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 900;
-    text-align: center;
+.btn-aceptar:disabled,
+.btn-rechazar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* Estados vacío y loading */
 .no-ordenes {
     text-align: center;
     padding: 3rem;
-    color: #9ca3af;
+    color: #6b7280;
 }
 
 .no-ordenes p {
     font-weight: 600;
     margin-bottom: 0.5rem;
+    color: #4b5563;
 }
 
 .no-ordenes small {
@@ -575,10 +711,11 @@
     align-items: center;
     gap: 8px;
     font-weight: 600;
+    color: white;
 }
 
 .copy-text {
-    color: #4b5563;
+    color: #9ca3af;
     margin-left: 15px;
 }
 
@@ -630,7 +767,7 @@
 }
 
 .auth-alert-card p {
-    color: #666;
+    color: #4b5563;
     margin-bottom: 1.5rem;
 }
 
@@ -664,6 +801,55 @@
 
 .btn-back-home:hover {
     color: #a01f24;
+}
+
+/* Animaciones */
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.orden-content-expanded {
+    animation: slideDown 0.3s ease;
+}
+
+/* Iconos inline */
+.btn-decision svg,
+.form-title svg,
+.user-info-header svg,
+.orden-id svg,
+.orden-fecha svg,
+.orden-descripcion svg,
+.orden-fotos svg,
+.orden-cotizacion-detalle svg,
+.orden-refacciones svg,
+.orden-mecanico svg,
+.cotizacion-items svg,
+.total-cotizacion svg,
+.observaciones svg {
+    margin-right: 6px;
+    vertical-align: middle;
 }
 
 /* Responsive */
@@ -701,13 +887,29 @@
         min-width: auto;
     }
 
-    .orden-fecha {
+    .orden-tab {
         flex-direction: column;
-        gap: 0.25rem;
+        align-items: flex-start;
+        gap: 10px;
     }
 
-    .orden-buttons {
+    .orden-tab-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .botones-fijos {
         flex-direction: column;
+    }
+
+    .fotos-grid-expanded {
+        justify-content: center;
+    }
+
+    .cotizacion-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
     }
 
     .sucursales-footer {
@@ -741,122 +943,4 @@
         margin: 20px;
         padding: 1.5rem;
     }
-}
-
-.orden-card {
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 12px;
-    border: 1px solid #ddd;
-    background: #fff;
-}
-
-/* PESTAÑA (HEADER) */
-.orden-tab {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-    cursor: pointer;
-    background: #f8f9fa;
-    transition: background 0.2s;
-}
-
-.orden-tab:hover {
-    background: #e9ecef;
-}
-
-.orden-tab-left {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.orden-tab-right {
-    font-size: 12px;
-    color: #666;
-}
-
-/* CONTENIDO EXPANDIBLE */
-.orden-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.35s ease;
-    padding: 0 16px;
-}
-
-/* cuando está abierta */
-.orden-content.show {
-    max-height: 400px;
-    padding: 16px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-}
-
-.orden-content.show::-webkit-scrollbar-thumb {
-    background: #bbb;
-    border-radius: 10px;
-}
-
-.orden-content.show::-webkit-scrollbar-thumb:hover {
-    background: #888;
-}
-
-/* efecto de expansión */
-.orden-card.open {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-/* STATUS */
-.orden-status {
-    padding: 4px 10px;
-    border-radius: 20px;
-    color: white;
-    font-size: 12px;
-}
-
-/* BOTONES */
-.orden-buttons {
-    margin-top: 12px;
-    display: flex;
-    gap: 10px;
-}
-/* Estilos para las miniaturas de fotos */
-.fotos-miniaturas {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-}
-
-.foto-thumbnail {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-    cursor: pointer;
-    border: 2px solid #e0e0e0;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.foto-thumbnail:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    border-color: #667eea;
-}
-
-/* Sección de fotos en la orden */
-.orden-fotos {
-    margin: 15px 0;
-    padding: 10px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.orden-fotos strong {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: #333;
-    margin-bottom: 10px;
 }
