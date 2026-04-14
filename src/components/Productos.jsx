@@ -46,8 +46,8 @@ const Productos = () => {
             try {
                 const categoryParam = CATEGORIA_MAP[categoria];
                 const url = categoryParam
-                    ? `http://localhost:3000/productos?category=${categoryParam}`
-                    : `http://localhost:3000/productos`;
+                    ? `https://mysasilao-back-end-production.up.railway.app/productos?category=${categoryParam}`
+                    : `https://mysasilao-back-end-production.up.railway.app/productos`;
 
                 const res = await fetch(url);
                 if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);

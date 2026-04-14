@@ -7,7 +7,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './Sucursales.css';
 
-const API_BASE = 'http://localhost:3000/sucursales';
+const API_BASE = 'https://mysasilao-back-end-production.up.railway.app/sucursales';
 
 const isAdmin = isInterno();
 
