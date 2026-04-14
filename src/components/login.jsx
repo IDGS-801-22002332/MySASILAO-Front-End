@@ -9,9 +9,9 @@ const API_BASE = 'http://localhost:3000';
 const Login = () => {
     const navigate = useNavigate();
 
-    const [usuario, setUsuario]   = useState('');
+    const [usuario, setUsuario] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading]   = useState(false);
+    const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState(null);
 
     const showAlert = (type, message) => {
@@ -21,42 +21,45 @@ const Login = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!usuario.trim() || !password.trim()) {
-            showAlert('error', 'Por favor completa usuario y contraseña.');
-            return;
-        }
-
-        setLoading(true);
-        setAlert(null);
-
-        try {
-            const res  = await fetch(`${API_BASE}/login`, {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ usuario, contrasenia: password }),
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!usuario.trim() || !password.trim()) {
+        showAlert('error', 'Por favor completa usuario y contraseña.');
+        return;
+    }
+    setLoading(true);
+    setAlert(null);
+    try {
+        const res = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuario, contrasenia: password }), // Enviar solo usuario y contrasenia
+        });
+        const data = await res.json();
+        console.log("DATA LOGIN:", data);  // Verifica que el id esté aquí
+        if (data.success) {
+            saveSession({
+                id: data.id,
+                usuario: data.usuario,
+                rol: data.rol,
+                nombre: data.nombre,
+                apellidoPaterno: data.apellidoPaterno,
+                apellidoMaterno: data.apellidoMaterno,
+                correo: data.correo,
+                telefono: data.telefono
             });
-
-            const data = await res.json();
-
-            if (data.success) {
-                saveSession({ usuario: data.usuario, rol: data.rol });
-                showAlert('success', `¡Bienvenido, ${data.usuario}!`);
-                
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 1000);
-            } else {
-                showAlert('error', data.message || 'Usuario o contraseña incorrectos.');
-            }
-        } catch (err) {
-            showAlert('error', 'No se pudo conectar con el servidor. Intenta más tarde.');
+            showAlert('success', `¡Bienvenido, ${data.usuario}!`);
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+        } else {
+            showAlert('error', data.message || 'Usuario o contraseña incorrectos.');
         }
-
-        setLoading(false);
-    };
+    } catch (err) {
+        showAlert('error', 'No se pudo conectar con el servidor. Intenta más tarde.');
+    }
+    setLoading(false);
+};
 
     return (
         <div className="login-screen">
@@ -166,6 +169,7 @@ const Login = () => {
                                 Regístrate
                             </button>
                         </div>
+
                         <br />
                         <div className="login-hint">
                             ¿Olvidaste tu contraseña?
@@ -185,7 +189,9 @@ const Login = () => {
                 <div className="footer-content">
                     <span className="red-text">MSA</span>
                     <span>MAQUINARIA Y SERVICIO AGRÍCOLA</span>
-                    <span className="copyright">© 2024 Todos los derechos reservados</span>
+                    <span className="copyright">
+                        © 2024 Todos los derechos reservados
+                    </span>
                 </div>
             </footer>
 

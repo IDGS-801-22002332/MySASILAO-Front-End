@@ -522,7 +522,7 @@ body {
     .footer-location {
         justify-content: center;
     }
-    
+
 
     .hero-actions {
         flex-direction: column;
@@ -545,8 +545,283 @@ body {
         opacity: 0;
         transform: translate(-50%, -20px);
     }
+
     to {
         opacity: 1;
         transform: translate(-50%, 0);
     }
+}
+
+/* Botones de administración del carrusel */
+.carrusel-admin-buttons {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 20;
+    display: flex;
+    gap: 10px;
+}
+
+.admin-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 21;
+}
+
+.admin-btn.add-btn {
+    background: #10b981;
+    color: white;
+}
+
+.admin-btn.add-btn:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+.admin-btn.delete-btn {
+    background: #ef4444;
+    color: white;
+}
+
+.admin-btn.delete-btn:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+}
+
+.edit-slide-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.edit-slide-btn:hover {
+    background: #c1272d;
+    transform: scale(1.05);
+}
+
+/* Modales */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.modal-header button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9ca3af;
+    transition: color 0.2s;
+}
+
+.modal-header button:hover {
+    color: #ef4444;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn-cancel {
+    background: #f3f4f6;
+    color: #374151;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+    background: #e5e7eb;
+}
+
+.btn-submit {
+    background: #c1272d;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-submit:hover:not(:disabled) {
+    background: #a01f24;
+    transform: translateY(-2px);
+}
+
+.btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.file-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px dashed #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.image-preview {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.image-preview p {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    color: #374151;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #c1272d;
+}
+
+.error-text {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+/* Animación spin */
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Asegurar que el carrusel tenga position relative para los botones */
+.top-carousel {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Estilo para cuando el carrusel está vacío */
+.carrusel-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    text-align: center;
+    color: white;
+}
+
+.carrusel-empty p {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.carrusel-empty small {
+    font-size: 0.8rem;
+    opacity: 0.8;
 }

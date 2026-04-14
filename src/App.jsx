@@ -11,45 +11,49 @@ import Login from "./components/login.jsx";
 import RegistroUsuario from "./components/registroUsuario.jsx";
 import RecuperarContrasenia from "./components/recuperarContrasenia.jsx";
 import RegistroMecanicos from "./components/registroMecanicos.jsx";
+import PrivateRoute from "./components/PrivateRoute.jsx";
+import CodigoRecuperacion from "./components/codigoRecuperacion.jsx";
+import CambiarContrasenia from "./components/cambiarContrasenia.jsx";
+import { Navigate } from "react-router-dom";
+import { Tractor } from 'lucide-react'
 
 function App() {
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<PaginaPrincipal />} />
-            </Routes>
-            <Routes>
                 <Route path="/sucursales" element={<Sucursales />} />
-            </Routes>
-            <Routes>
                 <Route path="/productos" element={<Productos />} />
-            </Routes>
-            <Routes>
                 <Route path="/acercaDe" element={<AcercaDe />} />
-            </Routes>
-            <Routes>
                 <Route path="/contacto" element={<Contacto />} />
-            </Routes>
-            <Routes>
                 <Route path="/taller" element={<Taller />} />
-            </Routes>
-            <Routes>
                 <Route path="/cliente" element={<ClienteSeguimiento />} />
-            </Routes>
-            <Routes>
                 <Route path="/internos" element={<Internos />} />
-            </Routes>
-            <Routes>
                 <Route path="/login" element={<Login />} />
-            </Routes>
-            <Routes>
                 <Route path="/registroUsuario" element={<RegistroUsuario />} />
-            </Routes>
-            <Routes>
                 <Route path="/recuperarContrasenia" element={<RecuperarContrasenia />} />
-            </Routes>
-            <Routes>
                 <Route path="/registroMecanicos" element={<RegistroMecanicos />} />
+
+                {/* Rutas protegidas */}
+                <Route
+                    path="/codigo-recuperacion"
+                    element={
+                        <PrivateRoute>
+                            <CodigoRecuperacion />
+                        </PrivateRoute>
+                    }
+                />
+                <Route
+                    path="/cambiar-contrasenia"
+                    element={
+                        <PrivateRoute requireCodeVerification={true}>
+                            <CambiarContrasenia />
+                        </PrivateRoute>
+                    }
+                />
+
+                {/* Redirigir a login por defecto */}
+                <Route path="*" element={<Navigate to="/login" />} />
             </Routes>
         </Router>
     );
