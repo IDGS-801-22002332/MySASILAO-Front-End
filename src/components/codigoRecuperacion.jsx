@@ -59,7 +59,7 @@ const CodigoRecuperacion = () => {
             setLoading(true);
 
             const response = await axios.post(
-                "http://localhost:3000/login/forgot-password",
+                "https://mysasilao-back-end-production.up.railway.app/login/forgot-password",
                 { correo: correoRecuperacion }
             );
 

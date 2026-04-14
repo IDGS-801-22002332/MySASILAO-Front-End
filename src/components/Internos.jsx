@@ -11,7 +11,7 @@ import {
 import { getSession, clearSession } from './authUtils';
 import './Internos.css'; 
 
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://mysasilao-back-end-production.up.railway.app';
 
 const Internos = () => {
     const navigate = useNavigate();

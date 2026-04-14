@@ -48,7 +48,7 @@ const CambiarContrasenia = () => {
 
         try {
             const response = await axios.post(
-                "http://localhost:3000/login/reset-password",
+                "https://mysasilao-back-end-production.up.railway.app/login/reset-password",
                 {
                     correo: correoRecuperacion,
                     codigo: codigoActual,

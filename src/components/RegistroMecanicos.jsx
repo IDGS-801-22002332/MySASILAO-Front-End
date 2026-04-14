@@ -17,7 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import "./registroUsuario.css";
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = 'https://mysasilao-back-end-production.up.railway.app';
 
 const RegistroMecanicos = () => {
     const navigate = useNavigate();

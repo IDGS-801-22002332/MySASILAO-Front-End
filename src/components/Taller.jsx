@@ -9,7 +9,7 @@ import {
 import { getSession, clearSession } from './authUtils';
 
 
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://mysasilao-back-end-production.up.railway.app';
 
 const Taller = () => {
     const navigate = useNavigate();

@@ -20,7 +20,7 @@ const RecuperarContrasenia = () => {
         setSuccess(false);
 
         try {
-            const response = await axios.post("http://localhost:3000/login/forgot-password", {
+            const response = await axios.post("https://mysasilao-back-end-production.up.railway.app/login/forgot-password", {
                 correo: email
             });
 

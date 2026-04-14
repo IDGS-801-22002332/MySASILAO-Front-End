@@ -4,7 +4,7 @@ import { User, Lock, LogIn, ArrowLeft, CheckCircle, XCircle, Loader } from 'luci
 import { saveSession } from './authUtils';
 import './login.css';
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = 'https://mysasilao-back-end-production.up.railway.app';
 
 const Login = () => {
     const navigate = useNavigate();
