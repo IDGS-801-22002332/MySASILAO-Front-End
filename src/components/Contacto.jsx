@@ -26,7 +26,6 @@ const Contacto = () => {
 
         e.preventDefault();
 
-        // correo que recibes
         emailjs.send(
             "service_90l3u18",
             "template_17upu39",
@@ -34,7 +33,6 @@ const Contacto = () => {
             "OUzkDRGInc6eir4-f"
         );
 
-        // respuesta automática
         emailjs.send(
             "service_90l3u18",
             "template_h4ybw7j",
