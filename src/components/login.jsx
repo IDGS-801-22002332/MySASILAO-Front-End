@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { User, Lock, LogIn, ArrowLeft, CheckCircle, XCircle, Loader } from 'lucide-react';
 import { saveSession } from './authUtils';
 import './login.css';
+import { useConfig } from '../context/ConfigContext';
 
-const API_BASE = 'http://localhost:3000';
+
 
 const Login = () => {
+    const { URL } = useConfig();
     const navigate = useNavigate();
 
     const [usuario, setUsuario] = useState('');
@@ -21,45 +23,45 @@ const Login = () => {
         }
     };
 
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!usuario.trim() || !password.trim()) {
-        showAlert('error', 'Por favor completa usuario y contraseña.');
-        return;
-    }
-    setLoading(true);
-    setAlert(null);
-    try {
-        const res = await fetch(`${API_BASE}/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usuario, contrasenia: password }), // Enviar solo usuario y contrasenia
-        });
-        const data = await res.json();
-        console.log("DATA LOGIN:", data);  // Verifica que el id esté aquí
-        if (data.success) {
-            saveSession({
-                id: data.id,
-                usuario: data.usuario,
-                rol: data.rol,
-                nombre: data.nombre,
-                apellidoPaterno: data.apellidoPaterno,
-                apellidoMaterno: data.apellidoMaterno,
-                correo: data.correo,
-                telefono: data.telefono
-            });
-            showAlert('success', `¡Bienvenido, ${data.usuario}!`);
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 1000);
-        } else {
-            showAlert('error', data.message || 'Usuario o contraseña incorrectos.');
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!usuario.trim() || !password.trim()) {
+            showAlert('error', 'Por favor completa usuario y contraseña.');
+            return;
         }
-    } catch (err) {
-        showAlert('error', 'No se pudo conectar con el servidor. Intenta más tarde.');
-    }
-    setLoading(false);
-};
+        setLoading(true);
+        setAlert(null);
+        try {
+            const res = await fetch(`${URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, contrasenia: password }),
+            });
+            const data = await res.json();
+            console.log("DATA LOGIN:", data);
+            if (data.success) {
+                saveSession({
+                    id: data.id,
+                    usuario: data.usuario,
+                    rol: data.rol,
+                    nombre: data.nombre,
+                    apellidoPaterno: data.apellidoPaterno,
+                    apellidoMaterno: data.apellidoMaterno,
+                    correo: data.correo,
+                    telefono: data.telefono
+                });
+                showAlert('success', `¡Bienvenido, ${data.usuario}!`);
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1000);
+            } else {
+                showAlert('error', data.message || 'Usuario o contraseña incorrectos.');
+            }
+        } catch (err) {
+            showAlert('error', 'No se pudo conectar con el servidor. Intenta más tarde.');
+        }
+        setLoading(false);
+    };
 
     return (
         <div className="login-screen">

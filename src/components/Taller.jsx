@@ -7,11 +7,11 @@ import {
     CheckCircle, AlertCircle, RefreshCw, Clock, Eye, Save
 } from 'lucide-react';
 import { getSession, clearSession } from './authUtils';
-
-
-const API_URL = 'http://localhost:3000';
+import { useConfig } from '../context/ConfigContext';
+import { ToastContainer } from './ToastNotification';
 
 const Taller = () => {
+    const { URL } = useConfig();
     const navigate = useNavigate();
     const [userData, setUserData] = useState(null);
     const [ordenes, setOrdenes] = useState([]);
@@ -26,10 +26,77 @@ const Taller = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [filtroStatus, setFiltroStatus] = useState('todos');
+    const [notifications, setNotifications] = useState([]);
+
+    const [editandoCotizacion, setEditandoCotizacion] = useState(null);
+    const [cotizacionEditForm, setCotizacionEditForm] = useState({
+        refacciones_necesarias: '',
+        mano_obra_costo: '',
+        observaciones_mecanico: ''
+    });
+    const [updating, setUpdating] = useState(false);
+
+    const showNotification = (message, type = 'info', duration = 4000) => {
+        const id = Date.now();
+        setNotifications(prev => [...prev, { id, message, type, duration }]);
+    };
+
+    const removeNotification = (id) => {
+        setNotifications(prev => prev.filter(notif => notif.id !== id));
+    };
+
+    const iniciarEdicionCotizacion = (orden) => {
+        setEditandoCotizacion(orden.id);
+        setCotizacionEditForm({
+            refacciones_necesarias: orden.refacciones_necesarias || '',
+            mano_obra_costo: orden.mano_obra_costo || '',
+            observaciones_mecanico: orden.observaciones_mecanico || ''
+        });
+    };
+
+    const actualizarCotizacion = async (ordenId) => {
+        if (!cotizacionEditForm.mano_obra_costo) {
+            showNotification('Por favor ingresa el costo de mano de obra', 'warning');
+            return;
+        }
+
+        setUpdating(true);
+        setError('');
+
+        try {
+            const response = await fetch(`${URL}/ordenes/${ordenId}/actualizar-cotizacion-mecanico`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    refacciones_necesarias: cotizacionEditForm.refacciones_necesarias,
+                    mano_obra_costo: cotizacionEditForm.mano_obra_costo,
+                    observaciones_mecanico: cotizacionEditForm.observaciones_mecanico
+                })
+            });
+
+            if (response.ok) {
+                showNotification('Cotizacion actualizada exitosamente. El cliente debera aceptarla nuevamente.', 'success', 5000);
+                setEditandoCotizacion(null);
+                setCotizacionEditForm({
+                    refacciones_necesarias: '',
+                    mano_obra_costo: '',
+                    observaciones_mecanico: ''
+                });
+                fetchMisOrdenes();
+            } else {
+                const errorData = await response.json();
+                showNotification(errorData.message || 'Error al actualizar cotizacion', 'error');
+            }
+        } catch (error) {
+            showNotification('Error de conexion al servidor', 'error');
+        } finally {
+            setUpdating(false);
+        }
+    };
 
     useEffect(() => {
         const session = getSession();
-        console.log("Sesión Mecánico:", session);
+        console.log("Sesion Mecanico:", session);
 
         if (!session || session.rol !== 'Mecanico') {
             navigate('/login');
@@ -44,13 +111,14 @@ const Taller = () => {
         setLoading(true);
         try {
             const session = getSession();
-            const response = await fetch(`${API_URL}/ordenes?rol=mecanico&usuarioId=${session.id}`);
+            const response = await fetch(`${URL}/ordenes?rol=mecanico&usuarioId=${session.id}`);
             const data = await response.json();
-            console.log('Mis órdenes:', data);
+            console.log('Mis ordenes:', data);
             setOrdenes(data);
         } catch (error) {
             console.error('Error:', error);
-            setError('Error al cargar tus órdenes');
+            setError('Error al cargar tus ordenes');
+            showNotification('Error al cargar tus ordenes', 'error');
         } finally {
             setLoading(false);
         }
@@ -63,7 +131,7 @@ const Taller = () => {
 
     const enviarCotizacion = async (ordenId) => {
         if (!cotizacionForm.mano_obra_costo) {
-            setError('Por favor ingresa el costo de mano de obra');
+            showNotification('Por favor ingresa el costo de mano de obra', 'warning');
             return;
         }
 
@@ -73,7 +141,7 @@ const Taller = () => {
         try {
             const cotizacion_total = parseFloat(cotizacionForm.mano_obra_costo);
 
-            const response = await fetch(`${API_URL}/ordenes/${ordenId}/cotizacion-mecanico`, {
+            const response = await fetch(`${URL}/ordenes/${ordenId}/cotizacion-mecanico`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -84,8 +152,7 @@ const Taller = () => {
             });
 
             if (response.ok) {
-                setSuccess('✅ Cotización enviada exitosamente');
-                setTimeout(() => setSuccess(''), 3000);
+                showNotification('Cotizacion enviada exitosamente', 'success');
                 setCotizacionForm({
                     refacciones_necesarias: '',
                     mano_obra_costo: '',
@@ -95,10 +162,10 @@ const Taller = () => {
                 fetchMisOrdenes();
             } else {
                 const errorData = await response.json();
-                setError(errorData.message || 'Error al enviar cotización');
+                showNotification(errorData.message || 'Error al enviar cotizacion', 'error');
             }
         } catch (error) {
-            setError('Error de conexión al servidor');
+            showNotification('Error de conexion al servidor', 'error');
         } finally {
             setSubmitting(false);
         }
@@ -106,27 +173,27 @@ const Taller = () => {
 
     const actualizarStatus = async (ordenId, nuevoStatus) => {
         try {
-            const response = await fetch(`${API_URL}/ordenes/${ordenId}/status`, {
+            const response = await fetch(`${URL}/ordenes/${ordenId}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: nuevoStatus })
             });
 
             if (response.ok) {
-                setSuccess(`✅ Estado actualizado a: ${nuevoStatus}`);
-                setTimeout(() => setSuccess(''), 3000);
+                showNotification(`Estado actualizado a: ${nuevoStatus}`, 'success');
                 fetchMisOrdenes();
             } else {
-                setError('Error al actualizar estado');
+                showNotification('Error al actualizar estado', 'error');
             }
         } catch (error) {
-            setError('Error de conexión');
+            showNotification('Error de conexion', 'error');
         }
     };
 
     const handleLogout = () => {
         clearSession();
         navigate('/login');
+        showNotification('Sesion cerrada correctamente', 'info');
     };
 
     const getStatusColor = (status) => {
@@ -174,17 +241,18 @@ const Taller = () => {
 
     return (
         <div className="taller-screen">
-            {/* Navbar */}
+            <ToastContainer notifications={notifications} removeNotification={removeNotification} />
+
             <nav className="taller-nav">
                 <div className="taller-logo">
-                    <strong>MAQUINARIA Y</strong> SERVICIO AGRÍCOLA
+                    <strong>MAQUINARIA Y</strong> SERVICIO AGRICOLA
                 </div>
                 <div className="taller-nav-right">
                     <div className="user-info-taller">
                         <Wrench size={20} />
                         <div className="user-details">
-                            <span className="user-name">{userData?.nombre || 'Mecánico'}</span>
-                            <span className="user-role">Taller Mecánico</span>
+                            <span className="user-name">{userData?.nombre || 'Mecanico'}</span>
+                            <span className="user-role">Taller Mecanico</span>
                         </div>
                     </div>
                     <button onClick={handleLogout} className="logout-taller-btn">Salir</button>
@@ -196,28 +264,15 @@ const Taller = () => {
                     <div className="back-button" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
                         <ArrowLeft size={14} /> VOLVER AL INICIO
                     </div>
-                    <h1 className="taller-title">MIS <span className="red-text">ÓRDENES</span></h1>
-                    <p className="taller-subtitle">GESTIÓN DE TRABAJOS ASIGNADOS</p>
+                    <h1 className="taller-title">MIS <span className="red-text">ORDENES</span></h1>
+                    <p className="taller-subtitle">GESTION DE TRABAJOS ASIGNADOS</p>
                 </header>
 
-                {/* Alertas */}
-                {error && (
-                    <div className="alert-error">
-                        <AlertCircle size={18} /> {error}
-                    </div>
-                )}
-                {success && (
-                    <div className="alert-success">
-                        <CheckCircle size={18} /> {success}
-                    </div>
-                )}
-
-                {/* Filtros */}
                 <div className="filtros-taller">
                     <div className="filter-group">
                         <label>Filtrar por estado:</label>
                         <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)}>
-                            <option value="todos">Todas las órdenes</option>
+                            <option value="todos">Todas las ordenes</option>
                             <option value="En revisión">En revisión</option>
                             <option value="En proceso de aceptación">En proceso de aceptación</option>
                             <option value="Busca de refacciones">Busca de refacciones</option>
@@ -234,19 +289,18 @@ const Taller = () => {
                 {loading ? (
                     <div className="loading-taller">
                         <div className="spinner-taller"></div>
-                        <p>Cargando tus órdenes...</p>
+                        <p>Cargando tus ordenes...</p>
                     </div>
                 ) : ordenesFiltradas.length === 0 ? (
                     <div className="no-ordenes-taller">
                         <CheckCircle size={48} color="#10b981" />
-                        <h3>No tienes órdenes asignadas</h3>
-                        <p>Cuando te asignen una orden, aparecerá aquí</p>
+                        <h3>No tienes ordenes asignadas</h3>
+                        <p>Cuando te asignen una orden, aparecera aqui</p>
                     </div>
                 ) : (
                     <div className="ordenes-taller-grid">
                         {ordenesFiltradas.map(orden => (
                             <div key={orden.id} className={`orden-taller-card ${selectedOrden === orden.id ? 'expanded' : ''}`}>
-                                {/* Cabecera de la orden */}
                                 <div className="orden-taller-header" onClick={() => setSelectedOrden(selectedOrden === orden.id ? null : orden.id)}>
                                     <div className="orden-info">
                                         <div className="orden-number">
@@ -264,10 +318,8 @@ const Taller = () => {
                                     </div>
                                 </div>
 
-                                {/* Contenido expandido */}
                                 {selectedOrden === orden.id && (
                                     <div className="orden-taller-body">
-                                        {/* Datos del Cliente */}
                                         <div className="info-seccion">
                                             <h4><User size={16} /> Datos del Cliente</h4>
                                             <div className="info-grid">
@@ -276,7 +328,7 @@ const Taller = () => {
                                                     <span>{orden.cliente_nombre} {orden.cliente_apellido_paterno}</span>
                                                 </div>
                                                 <div className="info-row">
-                                                    <span className="label"><Phone size={12} /> Teléfono:</span>
+                                                    <span className="label"><Phone size={12} /> Telefono:</span>
                                                     <span>{orden.cliente_telefono || 'No registrado'}</span>
                                                 </div>
                                                 <div className="info-row">
@@ -286,13 +338,11 @@ const Taller = () => {
                                             </div>
                                         </div>
 
-                                        {/* Descripción del Problema */}
                                         <div className="info-seccion">
                                             <h4><FileText size={16} /> Problema Reportado</h4>
                                             <p className="problema-texto">{orden.descripcion_problema}</p>
                                         </div>
 
-                                        {/* Fotos del Cliente */}
                                         {orden.fotos && orden.fotos.length > 0 && (
                                             <div className="info-seccion">
                                                 <h4><Image size={16} /> Fotos del Equipo</h4>
@@ -300,37 +350,105 @@ const Taller = () => {
                                                     {orden.fotos.map((foto, idx) => (
                                                         <img
                                                             key={idx}
-                                                            src={`${API_URL}${foto}`}
+                                                            src={`${URL}${foto}`}
                                                             alt={`Foto ${idx + 1}`}
-                                                            onClick={() => window.open(`${API_URL}${foto}`, '_blank')}
+                                                            onClick={() => window.open(`${URL}${foto}`, '_blank')}
                                                         />
                                                     ))}
                                                 </div>
                                             </div>
                                         )}
 
-                                        {/* Cotización existente */}
-                                        {orden.cotizacion_total && (
+                                        {!puedeCotizar(orden) && orden.cotizacion_total && (
                                             <div className="info-seccion cotizacion-existente">
-                                                <h4><DollarSign size={16} /> Cotización Enviada</h4>
+                                                <h4><DollarSign size={16} /> Cotizacion {orden.status === 'Busca de refacciones' ? 'Actual' : 'Enviada'}</h4>
                                                 <div className="cotizacion-detalle">
                                                     <div><strong>Mano de obra:</strong> {formatearDinero(orden.mano_obra_costo)}</div>
                                                     <div><strong>Refacciones:</strong> {orden.refacciones_necesarias || 'No especificadas'}</div>
                                                     <div><strong className="total">Total: {formatearDinero(orden.cotizacion_total)}</strong></div>
                                                     {orden.aceptacion_cliente === 1 && (
-                                                        <div className="aceptada-badge">✓ Aceptada por el cliente</div>
+                                                        <div className="aceptada-badge">Aceptada por el cliente</div>
                                                     )}
                                                     {orden.aceptacion_cliente === 0 && (
-                                                        <div className="rechazada-badge">✗ Rechazada por el cliente</div>
+                                                        <div className="rechazada-badge">Rechazada por el cliente</div>
                                                     )}
+                                                    {orden.aceptacion_cliente === null && orden.status === 'Busca de refacciones' && (
+                                                        <div className="pendiente-badge">Esperando respuesta del cliente</div>
+                                                    )}
+                                                </div>
+
+                                                {orden.status === 'Busca de refacciones' && orden.aceptacion_cliente === 1 && (
+                                                    <button
+                                                        onClick={() => iniciarEdicionCotizacion(orden)}
+                                                        className="btn-editar-cotizacion"
+                                                        style={{ marginTop: '12px', width: '100%' }}
+                                                    >
+                                                        <RefreshCw size={14} /> Actualizar Cotizacion (Agregar mas refacciones)
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {editandoCotizacion === orden.id && (
+                                            <div className="info-seccion cotizacion-form edit-mode">
+                                                <h4><RefreshCw size={16} /> Actualizar Cotizacion</h4>
+                                                <div className="form-cotizacion">
+                                                    <div className="form-group">
+                                                        <label>Refacciones adicionales o actualizadas</label>
+                                                        <textarea
+                                                            name="refacciones_necesarias"
+                                                            value={cotizacionEditForm.refacciones_necesarias}
+                                                            onChange={(e) => setCotizacionEditForm(prev => ({ ...prev, refacciones_necesarias: e.target.value }))}
+                                                            placeholder="Ej: Filtro de aceite, Bujias, Correa de distribucion, Sensor de oxigeno..."
+                                                            rows="3"
+                                                        />
+                                                        <small>Puedes agregar mas refacciones o modificar las existentes</small>
+                                                    </div>
+                                                    <div className="form-group">
+                                                        <label>Costo de mano de obra actualizado *</label>
+                                                        <input
+                                                            type="number"
+                                                            name="mano_obra_costo"
+                                                            value={cotizacionEditForm.mano_obra_costo}
+                                                            onChange={(e) => setCotizacionEditForm(prev => ({ ...prev, mano_obra_costo: e.target.value }))}
+                                                            placeholder="0.00"
+                                                            step="0.01"
+                                                        />
+                                                    </div>
+                                                    <div className="form-group">
+                                                        <label>Observaciones actualizadas</label>
+                                                        <textarea
+                                                            name="observaciones_mecanico"
+                                                            value={cotizacionEditForm.observaciones_mecanico}
+                                                            onChange={(e) => setCotizacionEditForm(prev => ({ ...prev, observaciones_mecanico: e.target.value }))}
+                                                            placeholder="Notas adicionales para el cliente sobre los cambios..."
+                                                            rows="2"
+                                                        />
+                                                    </div>
+                                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                                        <button
+                                                            onClick={() => actualizarCotizacion(orden.id)}
+                                                            disabled={updating}
+                                                            className="btn-enviar-cotizacion"
+                                                        >
+                                                            <Send size={16} />
+                                                            {updating ? 'Actualizando...' : 'Actualizar Cotizacion'}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setEditandoCotizacion(null)}
+                                                            className="btn-cancelar"
+                                                            style={{ background: '#6c757d' }}
+                                                        >
+                                                            Cancelar
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}
 
-                                        {/* Formulario de Cotización */}
                                         {puedeCotizar(orden) && (
                                             <div className="info-seccion cotizacion-form">
-                                                <h4><DollarSign size={16} /> Generar Cotización</h4>
+                                                <h4><DollarSign size={16} /> Generar Cotizacion</h4>
                                                 <div className="form-cotizacion">
                                                     <div className="form-group">
                                                         <label>Refacciones necesarias</label>
@@ -338,7 +456,7 @@ const Taller = () => {
                                                             name="refacciones_necesarias"
                                                             value={cotizacionForm.refacciones_necesarias}
                                                             onChange={handleCotizacionChange}
-                                                            placeholder="Ej: Filtro de aceite, Bujías, Correa de distribución..."
+                                                            placeholder="Ej: Filtro de aceite, Bujias, Correa de distribucion..."
                                                             rows="3"
                                                         />
                                                     </div>
@@ -369,13 +487,12 @@ const Taller = () => {
                                                         className="btn-enviar-cotizacion"
                                                     >
                                                         <Send size={16} />
-                                                        {submitting ? 'Enviando...' : 'Enviar Cotización'}
+                                                        {submitting ? 'Enviando...' : 'Enviar Cotizacion'}
                                                     </button>
                                                 </div>
                                             </div>
                                         )}
 
-                                        {/* Acciones de Estado */}
                                         <div className="info-seccion acciones-estado">
                                             <h4><Settings size={16} /> Cambiar Estado</h4>
                                             <div className="botones-accion">
@@ -406,7 +523,7 @@ const Taller = () => {
 
             <footer className="taller-footer">
                 <div className="footer-content">
-                    <strong>MAQUINARIA</strong> <span className="red-text">SERVICIO AGRÍCOLA</span>
+                    <strong>MAQUINARIA</strong> <span className="red-text">SERVICIO AGRICOLA</span>
                     <span className="footer-tag">SISTEMA DE TALLER</span>
                 </div>
             </footer>

@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-    ArrowLeft, Camera, CheckCircle2, XCircle, User, Lock, ClipboardList, RefreshCw, 
+import {
+    ArrowLeft, Camera, CheckCircle2, XCircle, User, Lock, ClipboardList, RefreshCw,
     Image, DollarSign, Wrench, Package, MessageSquare, CheckCircle, AlertCircle,
     Clock, Phone, Mail, Calendar, FileText, ThumbsUp, ThumbsDown, PlusCircle,
     Loader2, CreditCard, Tag, ChevronDown, ChevronUp, Eye, Maximize2, Minimize2
 } from 'lucide-react';
 import { getSession, clearSession } from './authUtils';
 import './ClienteSeguimiento.css';
-
-const API_URL = 'http://localhost:3000';
+import { useConfig } from '../context/ConfigContext';
+import { ToastContainer } from './ToastNotification';
 
 const ClienteSeguimiento = () => {
+    const { URL } = useConfig();
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userData, setUserData] = useState(null);
@@ -25,6 +26,16 @@ const ClienteSeguimiento = () => {
     const [error, setError] = useState('');
     const [processingOrder, setProcessingOrder] = useState(null);
     const [ordenAbierta, setOrdenAbierta] = useState(null);
+    const [notifications, setNotifications] = useState([]);
+
+    const showNotification = (message, type = 'info', duration = 4000) => {
+        const id = Date.now();
+        setNotifications(prev => [...prev, { id, message, type, duration }]);
+    };
+
+    const removeNotification = (id) => {
+        setNotifications(prev => prev.filter(notif => notif.id !== id));
+    };
 
     const toggleOrden = (id) => {
         setOrdenAbierta(prev => (prev === id ? null : id));
@@ -45,13 +56,14 @@ const ClienteSeguimiento = () => {
     const fetchOrdenes = async (usuarioId) => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/ordenes?rol=cliente&usuarioId=${usuarioId}`);
+            const response = await fetch(`${URL}/ordenes?rol=cliente&usuarioId=${usuarioId}`);
             const data = await response.json();
-            console.log('Órdenes obtenidas:', data);
+            console.log('Ordenes obtenidas:', data);
             setOrdenes(data);
         } catch (error) {
-            console.error('Error al cargar órdenes:', error);
-            setError('Error al cargar tus órdenes');
+            console.error('Error al cargar ordenes:', error);
+            setError('Error al cargar tus ordenes');
+            showNotification('Error al cargar tus ordenes', 'error');
         } finally {
             setLoading(false);
         }
@@ -86,7 +98,7 @@ const ClienteSeguimiento = () => {
         });
 
         try {
-            const response = await fetch(`${API_URL}/ordenes`, {
+            const response = await fetch(`${URL}/ordenes`, {
                 method: 'POST',
                 body: formDataToSend
             });
@@ -97,13 +109,15 @@ const ClienteSeguimiento = () => {
                 const fileInput = document.getElementById('fotos-input');
                 if (fileInput) fileInput.value = '';
                 await fetchOrdenes(userData.id);
-                alert('✅ Solicitud creada exitosamente');
+                showNotification('Solicitud creada exitosamente', 'success');
             } else {
                 const errorData = await response.json();
                 setError(errorData.message || 'Error al crear la solicitud');
+                showNotification(errorData.message || 'Error al crear la solicitud', 'error');
             }
         } catch (error) {
-            setError('Error de conexión al servidor');
+            setError('Error de conexion al servidor');
+            showNotification('Error de conexion al servidor', 'error');
         } finally {
             setSubmitting(false);
         }
@@ -111,30 +125,31 @@ const ClienteSeguimiento = () => {
 
     const handleAceptarRechazar = useCallback(async (ordenId, aceptado) => {
         if (processingOrder === ordenId) {
+            showNotification('Procesando solicitud, por favor espera...', 'warning');
             return;
         }
 
         const ordenActual = ordenes.find(o => o.id === ordenId);
-        
+
         if (ordenActual.aceptacion_cliente !== null && ordenActual.aceptacion_cliente !== undefined) {
-            alert('⚠️ Esta cotización ya fue procesada');
+            showNotification('Esta cotizacion ya fue procesada anteriormente', 'warning');
             return;
         }
 
-        if (ordenActual.status !== 'En proceso de aceptación') {
-            alert(`⚠️ No puedes procesar esta cotización porque la orden está en estado: ${ordenActual.status}`);
+        if (ordenActual.status !== 'En proceso de aceptacion') {
+            showNotification(`No puedes procesar esta cotizacion porque la orden esta en estado: ${ordenActual.status}`, 'error');
             return;
         }
 
         if (!ordenActual.cotizacion_total || ordenActual.cotizacion_total <= 0) {
-            alert('⚠️ No hay una cotización válida');
+            showNotification('No hay una cotizacion valida para procesar', 'error');
             return;
         }
 
         setProcessingOrder(ordenId);
 
         try {
-            const response = await fetch(`${API_URL}/ordenes/${ordenId}/aceptar-cliente`, {
+            const response = await fetch(`${URL}/ordenes/${ordenId}/aceptar-cliente`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ aceptado })
@@ -142,7 +157,7 @@ const ClienteSeguimiento = () => {
 
             if (response.ok) {
                 const result = await response.json();
-                
+
                 setOrdenes(prevOrdenes =>
                     prevOrdenes.map(orden =>
                         orden.id === ordenId
@@ -150,32 +165,35 @@ const ClienteSeguimiento = () => {
                             : orden
                     )
                 );
-                
-                const mensaje = aceptado 
-                    ? '✅ Cotización aceptada. El mecánico buscará las refacciones.' 
-                    : '❌ Cotización rechazada. Se ha cancelado la orden.';
-                alert(mensaje);
-                
+
+                const mensaje = aceptado
+                    ? 'Cotizacion aceptada. El mecanico buscara las refacciones.'
+                    : 'Cotizacion rechazada. Se ha cancelado la orden.';
+                const tipo = aceptado ? 'success' : 'error';
+
+                showNotification(mensaje, tipo, 5000);
+
                 await fetchOrdenes(userData.id);
                 setOrdenAbierta(null);
             } else {
                 const errorData = await response.json();
-                alert(`❌ Error: ${errorData.message || 'No se pudo procesar'}`);
+                showNotification(`Error: ${errorData.message || 'No se pudo procesar la cotizacion'}`, 'error');
                 await fetchOrdenes(userData.id);
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('❌ Error de conexión al servidor');
+            showNotification('Error de conexion al servidor', 'error');
         } finally {
             setProcessingOrder(null);
         }
-    }, [ordenes, userData?.id, fetchOrdenes]);
+    }, [ordenes, userData?.id, fetchOrdenes, processingOrder]);
 
     const handleLogout = () => {
         clearSession();
         setIsLoggedIn(false);
         setUserData(null);
         navigate('/login');
+        showNotification('Sesion cerrada correctamente', 'info');
     };
 
     const getStatusColor = (status) => {
@@ -192,7 +210,7 @@ const ClienteSeguimiento = () => {
     };
 
     const getStatusIcon = (status) => {
-        switch(status) {
+        switch (status) {
             case 'Terminado': return <CheckCircle size={16} />;
             case 'Cancelado': return <XCircle size={16} />;
             case 'En revisión': return <Clock size={16} />;
@@ -204,10 +222,10 @@ const ClienteSeguimiento = () => {
     };
 
     const debeMostrarBotonesDecision = (orden) => {
-        return orden.status === 'En proceso de aceptación' && 
-               (orden.aceptacion_cliente === null || orden.aceptacion_cliente === undefined) &&
-               orden.cotizacion_total > 0 &&
-               processingOrder !== orden.id;
+        return orden.status === 'En proceso de aceptación' &&
+            (orden.aceptacion_cliente === null || orden.aceptacion_cliente === undefined) &&
+            orden.cotizacion_total > 0 &&
+            processingOrder !== orden.id;
     };
 
     const formatearDinero = (monto) => {
@@ -217,6 +235,8 @@ const ClienteSeguimiento = () => {
 
     return (
         <div className="cliente-screen">
+            <ToastContainer notifications={notifications} removeNotification={removeNotification} />
+
             {!isLoggedIn && (
                 <div className="modal-overlay-blur">
                     <div className="auth-alert-card">
@@ -224,12 +244,12 @@ const ClienteSeguimiento = () => {
                             <Lock size={48} color="#e63946" />
                         </div>
                         <h2>ACCESO RESTRINGIDO</h2>
-                        <p>Para consultar el avance de tu equipo, por favor inicia sesión.</p>
+                        <p>Para consultar el avance de tu equipo, por favor inicia sesion.</p>
                         <button className="btn-login-redirect" onClick={() => navigate('/login')}>
-                            INICIAR SESIÓN
+                            INICIAR SESION
                         </button>
                         <button className="btn-back-home" onClick={() => navigate('/')}>
-                            VOLVER AL MENÚ
+                            VOLVER AL MENU
                         </button>
                     </div>
                 </div>
@@ -238,10 +258,10 @@ const ClienteSeguimiento = () => {
             <div className={`content-wrapper ${!isLoggedIn ? 'content-blurred' : ''}`}>
                 <nav className="cliente-nav">
                     <div className="cliente-logo">
-                        <strong>MAQUINARIA Y</strong> SERVICIO AGRÍCOLA
+                        <strong>MAQUINARIA Y</strong> SERVICIO AGRICOLA
                     </div>
                     <div className="nav-icons">
-                        <div className="user-avatar" onClick={handleLogout} title="Cerrar Sesión">
+                        <div className="user-avatar" onClick={handleLogout} title="Cerrar Sesion">
                             {userData?.usuario?.substring(0, 2).toUpperCase() || '??'}
                         </div>
                     </div>
@@ -257,7 +277,6 @@ const ClienteSeguimiento = () => {
                     </header>
 
                     <div className="two-column-layout">
-                        {/* COLUMNA IZQUIERDA - FORMULARIO */}
                         <div className="form-column">
                             <div className="form-card">
                                 <h2 className="form-title">
@@ -270,7 +289,7 @@ const ClienteSeguimiento = () => {
                                     <div className="user-info-card">
                                         <div className="user-info-header">
                                             <User size={18} />
-                                            <span>Información del Cliente</span>
+                                            <span>Informacion del Cliente</span>
                                         </div>
                                         <div className="user-info-grid">
                                             <div className="user-info-item">
@@ -278,7 +297,7 @@ const ClienteSeguimiento = () => {
                                                 <span>{userData.nombre} {userData.apellidoPaterno} {userData.apellidoMaterno}</span>
                                             </div>
                                             <div className="user-info-item">
-                                                <label><Phone size={14} /> Teléfono:</label>
+                                                <label><Phone size={14} /> Telefono:</label>
                                                 <span>{userData.telefono || 'No registrado'}</span>
                                             </div>
                                             <div className="user-info-item">
@@ -291,7 +310,7 @@ const ClienteSeguimiento = () => {
 
                                 <form onSubmit={handleSubmit} className="cliente-form">
                                     <div className="form-group">
-                                        <label><FileText size={14} /> Descripción del Problema *</label>
+                                        <label><FileText size={14} /> Descripcion del Problema *</label>
                                         <textarea
                                             name="descripcion_problema"
                                             value={formData.descripcion_problema}
@@ -304,7 +323,7 @@ const ClienteSeguimiento = () => {
                                     </div>
 
                                     <div className="form-group">
-                                        <label><Camera size={14} /> Fotografías (máx. 5)</label>
+                                        <label><Camera size={14} /> Fotografias (max. 5)</label>
                                         <input
                                             id="fotos-input"
                                             type="file"
@@ -331,7 +350,6 @@ const ClienteSeguimiento = () => {
                             </div>
                         </div>
 
-                        {/* COLUMNA DERECHA - LISTA DE ÓRDENES */}
                         <div className="ordenes-column">
                             <div className="ordenes-card">
                                 <div className="ordenes-header">
@@ -363,7 +381,6 @@ const ClienteSeguimiento = () => {
 
                                             return (
                                                 <div key={orden.id} className={`orden-card ${isOpen ? 'open' : ''}`}>
-                                                    {/* Header siempre visible */}
                                                     <div className="orden-tab" onClick={() => toggleOrden(orden.id)}>
                                                         <div className="orden-tab-left">
                                                             <div className="orden-id">
@@ -375,7 +392,7 @@ const ClienteSeguimiento = () => {
                                                             </div>
                                                             {tieneCotizacion && orden.status === 'En proceso de aceptación' && (
                                                                 <div className="pending-badge">
-                                                                    <Clock size={12} /> ¡Requiere tu respuesta!
+                                                                    <Clock size={12} /> Requiere tu respuesta
                                                                 </div>
                                                             )}
                                                         </div>
@@ -386,44 +403,39 @@ const ClienteSeguimiento = () => {
                                                         </div>
                                                     </div>
 
-                                                    {/* Contenido expandible CON SCROLL */}
                                                     {isOpen && (
                                                         <div className="orden-content-expanded">
                                                             <div className="orden-content-scroll">
-                                                                {/* Fecha detallada */}
                                                                 <div className="info-row-expanded">
                                                                     <Calendar size={16} />
-                                                                    <span><strong>Fecha de creación:</strong> {new Date(orden.fecha_creacion).toLocaleString()}</span>
+                                                                    <span><strong>Fecha de creacion:</strong> {new Date(orden.fecha_creacion).toLocaleString()}</span>
                                                                 </div>
 
-                                                                {/* Problema */}
                                                                 <div className="info-section-expanded">
                                                                     <h4><FileText size={16} /> Problema reportado</h4>
                                                                     <p className="problema-texto-expanded">{orden.descripcion_problema}</p>
                                                                 </div>
 
-                                                                {/* Fotos */}
                                                                 {orden.fotos && orden.fotos.length > 0 && (
                                                                     <div className="info-section-expanded">
-                                                                        <h4><Image size={16} /> Fotografías del equipo</h4>
+                                                                        <h4><Image size={16} /> Fotografias del equipo</h4>
                                                                         <div className="fotos-grid-expanded">
                                                                             {orden.fotos.map((foto, idx) => (
                                                                                 <img
                                                                                     key={idx}
-                                                                                    src={`${API_URL}${foto}`}
+                                                                                    src={`${URL}${foto}`}
                                                                                     alt={`Foto ${idx + 1}`}
                                                                                     className="foto-expanded"
-                                                                                    onClick={() => window.open(`${API_URL}${foto}`, '_blank')}
+                                                                                    onClick={() => window.open(`${URL}${foto}`, '_blank')}
                                                                                 />
                                                                             ))}
                                                                         </div>
                                                                     </div>
                                                                 )}
 
-                                                                {/* Cotización */}
                                                                 {tieneCotizacion && (
                                                                     <div className={`info-section-expanded cotizacion-expanded ${orden.status === 'En proceso de aceptación' ? 'highlight' : ''}`}>
-                                                                        <h4><DollarSign size={16} /> Detalle de la Cotización</h4>
+                                                                        <h4><DollarSign size={16} /> Detalle de la Cotizacion</h4>
                                                                         <div className="cotizacion-grid-expanded">
                                                                             <div className="cotizacion-row">
                                                                                 <span className="label">Mano de obra:</span>
@@ -448,26 +460,24 @@ const ClienteSeguimiento = () => {
                                                                         </div>
                                                                         {orden.aceptacion_cliente === 1 && (
                                                                             <div className="aceptada-expanded">
-                                                                                <ThumbsUp size={16} /> Cotización aceptada
+                                                                                <ThumbsUp size={16} /> Cotizacion aceptada
                                                                             </div>
                                                                         )}
                                                                         {orden.aceptacion_cliente === 0 && (
                                                                             <div className="rechazada-expanded">
-                                                                                <ThumbsDown size={16} /> Cotización rechazada
+                                                                                <ThumbsDown size={16} /> Cotizacion rechazada
                                                                             </div>
                                                                         )}
                                                                     </div>
                                                                 )}
 
-                                                                {/* Mecánico asignado */}
                                                                 {orden.mecanico_asignado_nombre && (
                                                                     <div className="info-row-expanded">
                                                                         <Wrench size={16} />
-                                                                        <span><strong>Mecánico asignado:</strong> {orden.mecanico_asignado_nombre}</span>
+                                                                        <span><strong>Mecanico asignado:</strong> {orden.mecanico_asignado_nombre}</span>
                                                                     </div>
                                                                 )}
 
-                                                                {/* Fechas importantes */}
                                                                 <div className="fechas-grid-expanded">
                                                                     {orden.fecha_asignacion && (
                                                                         <div className="fecha-item">
@@ -490,7 +500,6 @@ const ClienteSeguimiento = () => {
                                                                 </div>
                                                             </div>
 
-                                                            {/* Botones FIJOS en la parte inferior */}
                                                             {mostrarBotones && (
                                                                 <div className="botones-fijos">
                                                                     <button
@@ -499,7 +508,7 @@ const ClienteSeguimiento = () => {
                                                                         disabled={estaProcesando}
                                                                     >
                                                                         {estaProcesando ? <Loader2 size={20} className="spin" /> : <ThumbsUp size={20} />}
-                                                                        {estaProcesando ? 'PROCESANDO...' : 'ACEPTAR COTIZACIÓN'}
+                                                                        {estaProcesando ? 'PROCESANDO...' : 'ACEPTAR COTIZACION'}
                                                                     </button>
                                                                     <button
                                                                         className="btn-rechazar"
@@ -507,7 +516,7 @@ const ClienteSeguimiento = () => {
                                                                         disabled={estaProcesando}
                                                                     >
                                                                         {estaProcesando ? <Loader2 size={20} className="spin" /> : <ThumbsDown size={20} />}
-                                                                        {estaProcesando ? 'PROCESANDO...' : 'RECHAZAR COTIZACIÓN'}
+                                                                        {estaProcesando ? 'PROCESANDO...' : 'RECHAZAR COTIZACION'}
                                                                     </button>
                                                                 </div>
                                                             )}
@@ -525,8 +534,8 @@ const ClienteSeguimiento = () => {
 
                 <footer className="sucursales-footer">
                     <div className="footer-brand-low">
-                        <strong>MAQUINARIA</strong> <span className="red-text">SERVICIO AGRÍCOLA</span>
-                        <span className="copy-text">© 2024 Maquinaria y Servicio Agrícola.</span>
+                        <strong>MAQUINARIA</strong> <span className="red-text">SERVICIO AGRICOLA</span>
+                        <span className="copy-text">© 2024 Maquinaria y Servicio Agricola.</span>
                     </div>
                 </footer>
             </div>

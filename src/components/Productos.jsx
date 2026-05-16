@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Tag, Hash } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import './Productos.css';
+import { useConfig } from '../context/ConfigContext';
 
 const CATEGORIA_MAP = {
     'Todos': '',
@@ -30,6 +31,7 @@ const CATEGORIA_KEY_MAP = {
 };
 
 const Productos = () => {
+    const { URL } = useConfig();
     const [categoria, setCategoria] = useState('Todos');
     const [productos, setProductos] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -46,8 +48,8 @@ const Productos = () => {
             try {
                 const categoryParam = CATEGORIA_MAP[categoria];
                 const url = categoryParam
-                    ? `http://localhost:3000/productos?category=${categoryParam}`
-                    : `http://localhost:3000/productos`;
+                    ? `${URL}/productos?category=${categoryParam}`
+                    : `${URL}/productos`;
 
                 const res = await fetch(url);
                 if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);

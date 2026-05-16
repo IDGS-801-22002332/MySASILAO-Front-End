@@ -6,10 +6,12 @@ import {
     Plus, Trash2, Image as ImageIcon, Upload, RefreshCw
 } from 'lucide-react';
 import './PaginaPrincipal.css';
+import { useConfig } from '../context/ConfigContext';
 
-const API_BASE = 'http://localhost:3000';
 
 const PaginaPrincipal = () => {
+    const { URL } = useConfig();
+
     const navigate = useNavigate();
     const [showAd, setShowAd] = useState(true);
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -47,32 +49,30 @@ const PaginaPrincipal = () => {
     const fetchCarrusel = async () => {
         setLoadingCarrusel(true);
         try {
-            const response = await fetch(`${API_BASE}/carrusel`);
+            const response = await fetch(`${URL}/carrusel`);
             const data = await response.json();
             console.log('Datos del carrusel:', data);
 
             if (Array.isArray(data) && data.length > 0) {
-                // 🔥 SOLO usar imágenes de la base de datos
                 const slidesFormateados = data.map(item => ({
                     id: item.id,
-                    image: `${API_BASE}${item.imagen}`,
+                    image: `${URL}${item.imagen}`,
                     title: '',
                     label: ''
                 }));
                 setSlides(slidesFormateados);
             } else {
-                // 🔥 Si no hay imágenes en la BD, mostrar un mensaje o carrusel vacío
-                setSlides([]); // 👈 Vacío, no imágenes por defecto
+                setSlides([]);
             }
         } catch (error) {
             console.error('Error al cargar carrusel:', error);
-            setSlides([]); // 👈 Vacío en caso de error
+            setSlides([]);
         } finally {
             setLoadingCarrusel(false);
         }
     };
 
-    // Subir nueva imagen al carrusel (simplificado - sin título ni label)
+    // Subir nueva imagen al carrusel
     const handleUploadImage = async () => {
         if (!selectedImage) {
             alert('Por favor selecciona una imagen');
@@ -84,24 +84,24 @@ const PaginaPrincipal = () => {
 
         setUploading(true);
         try {
-            const response = await fetch(`${API_BASE}/carrusel`, {
+            const response = await fetch(`${URL}/carrusel`, {
                 method: 'POST',
                 body: formData
             });
 
             if (response.ok) {
-                alert('✅ Imagen agregada exitosamente');
+                alert('Imagen agregada exitosamente');
                 setSelectedImage(null);
                 setShowCarruselModal(false);
-                fetchCarrusel(); // Recargar lista
+                fetchCarrusel();
                 // Reiniciar el input file
                 document.getElementById('file-input').value = '';
             } else {
-                alert('❌ Error al subir la imagen');
+                alert('Error al subir la imagen');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('❌ Error de conexión');
+            alert('Error de conexión');
         } finally {
             setUploading(false);
         }
@@ -121,62 +121,26 @@ const PaginaPrincipal = () => {
         }
 
         try {
-            const response = await fetch(`${API_BASE}/carrusel/${ultimaImagen.id}`, {
+            const response = await fetch(`${URL}/carrusel/${ultimaImagen.id}`, {
                 method: 'DELETE'
             });
 
             if (response.ok) {
-                alert('✅ Imagen eliminada exitosamente');
+                alert('Imagen eliminada exitosamente');
                 fetchCarrusel(); // Recargar lista
             } else {
-                alert('❌ Error al eliminar la imagen');
+                alert('Error al eliminar la imagen');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('❌ Error de conexión');
+            alert('Error de conexión');
         }
     };
 
-    // Editar título y label de una imagen
-    const handleEditSlide = async () => {
-        if (!editingSlide) return;
-
-        try {
-            const response = await fetch(`${API_BASE}/carrusel/${editingSlide.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: editSlideForm.title,
-                    label: editSlideForm.label
-                })
-            });
-
-            if (response.ok) {
-                alert('✅ Información actualizada');
-                setEditSlideModal(false);
-                setEditingSlide(null);
-                fetchCarrusel();
-            } else {
-                alert('❌ Error al actualizar');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('❌ Error de conexión');
-        }
-    };
-
-    const openEditSlide = (slide) => {
-        setEditingSlide(slide);
-        setEditSlideForm({
-            title: slide.title || '',
-            label: slide.label || ''
-        });
-        setEditSlideModal(true);
-    };
 
     const fetchAnuncio = async () => {
         try {
-            const res = await fetch(`${API_BASE}/anuncios`);
+            const res = await fetch(`${URL}/anuncios`);
             const data = await res.json();
             if (data && data.length > 0) {
                 setAnuncio(data[0]);
@@ -215,7 +179,7 @@ const PaginaPrincipal = () => {
         setSaving(true);
         setSaveError('');
         try {
-            const res = await fetch(`${API_BASE}/anuncios/${anuncio.id}`, {
+            const res = await fetch(`${URL}/anuncios/${anuncio.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editForm),
