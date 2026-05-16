@@ -5,7 +5,10 @@ import { useRecuperacion } from "../context/RecuperacionContext";
 import axios from "axios";
 import "./codigoRecuperacion.css";
 
+import { useConfig } from "../context/ConfigContext";
+
 const CodigoRecuperacion = () => {
+    const { URL } = useConfig();
     const navigate = useNavigate();
     const { correoRecuperacion, marcarCodigoVerificado } = useRecuperacion();
 
@@ -32,7 +35,7 @@ const CodigoRecuperacion = () => {
 
         try {
             const response = await axios.post(
-                "http://localhost:3000/login/verify-code",
+                `${URL}/login/verify-code`,
                 {
                     correo: correoRecuperacion,
                     codigo
@@ -40,7 +43,6 @@ const CodigoRecuperacion = () => {
             );
 
             if (response.data.success) {
-                // 🔥 FIX IMPORTANTE
                 marcarCodigoVerificado(codigo);
                 navigate("/cambiar-contrasenia");
             } else {
@@ -59,7 +61,7 @@ const CodigoRecuperacion = () => {
             setLoading(true);
 
             const response = await axios.post(
-                "https://mysasilao-back-end-production.up.railway.app/login/forgot-password",
+                `${URL}/login/forgot-password`,
                 { correo: correoRecuperacion }
             );
 

@@ -4,8 +4,10 @@ import { ArrowLeft, Lock, Check, Loader, CheckCircle } from "lucide-react";
 import { useRecuperacion } from "../context/RecuperacionContext";
 import axios from "axios";
 import "./cambiarContrasenia.css";
+import { useConfig } from "../context/ConfigContext";
 
 const CambiarContrasenia = () => {
+    const { URL } = useConfig();
     const navigate = useNavigate();
 
     const {
@@ -22,7 +24,7 @@ const CambiarContrasenia = () => {
 
     const [error, setError]     = useState("");
     const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(false);  // ← NUEVO
+    const [success, setSuccess] = useState(false);  
 
     useEffect(() => {
         if (!correoRecuperacion || !codigoVerificado || !codigoActual) {
@@ -48,7 +50,7 @@ const CambiarContrasenia = () => {
 
         try {
             const response = await axios.post(
-                "https://mysasilao-back-end-production.up.railway.app/login/reset-password",
+                `${URL}/login/reset-password`,
                 {
                     correo: correoRecuperacion,
                     codigo: codigoActual,

@@ -16,9 +16,12 @@ import CodigoRecuperacion from "./components/codigoRecuperacion.jsx";
 import CambiarContrasenia from "./components/cambiarContrasenia.jsx";
 import { Navigate } from "react-router-dom";
 import { Tractor } from 'lucide-react'
+import { ConfigProvider } from "./context/ConfigContext";
+
 
 function App() {
     return (
+        <ConfigProvider>
         <Router>
             <Routes>
                 <Route path="/" element={<PaginaPrincipal />} />
@@ -56,6 +59,7 @@ function App() {
                 <Route path="*" element={<Navigate to="/login" />} />
             </Routes>
         </Router>
+        </ConfigProvider>
     );
 }
 

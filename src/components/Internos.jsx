@@ -10,10 +10,12 @@ import {
 } from 'lucide-react';
 import { getSession, clearSession } from './authUtils';
 import './Internos.css'; 
+import { useConfig } from '../context/ConfigContext';
 
-const API_URL = 'https://mysasilao-back-end-production.up.railway.app';
+
 
 const Internos = () => {
+    const { URL } = useConfig();
     const navigate = useNavigate();
     const [userData, setUserData] = useState(null);
     const [ordenes, setOrdenes] = useState([]);
@@ -56,7 +58,7 @@ const Internos = () => {
     const fetchOrdenes = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/ordenes?rol=interno`);
+            const response = await fetch(`${URL}/ordenes?rol=interno`);
             const data = await response.json();
             setOrdenes(data);
             const sinAsignar = data.filter(orden => !orden.mecanico_asignado_id);
@@ -73,7 +75,7 @@ const Internos = () => {
 
     const fetchMecanicos = async () => {
         try {
-            const response = await fetch(`${API_URL}/usuarios?rol=Mecanico`);
+            const response = await fetch(`${URL}/usuarios?rol=Mecanico`);
             if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
             const data = await response.json();
             if (Array.isArray(data)) setMecanicos(data);
@@ -91,7 +93,7 @@ const Internos = () => {
         }
         setAsignando(prev => ({ ...prev, [ordenId]: true }));
         try {
-            const response = await fetch(`${API_URL}/ordenes/${ordenId}/asignar-mecanico`, {
+            const response = await fetch(`${URL}/ordenes/${ordenId}/asignar-mecanico`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ mecanico_id: parseInt(mecanicoId) })
@@ -114,7 +116,7 @@ const Internos = () => {
 
     const actualizarStatus = async (ordenId, nuevoStatus) => {
         try {
-            const response = await fetch(`${API_URL}/ordenes/${ordenId}/status`, {
+            const response = await fetch(`${URL}/ordenes/${ordenId}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: nuevoStatus })
@@ -384,10 +386,10 @@ const Internos = () => {
                                                     {orden.fotos.map((foto, idx) => (
                                                         <img
                                                             key={idx}
-                                                            src={`${API_URL}${foto}`}
+                                                            src={`${URL}${foto}`}
                                                             alt={`Foto ${idx + 1}`}
                                                             className="foto-miniatura"
-                                                            onClick={() => window.open(`${API_URL}${foto}`, '_blank')}
+                                                            onClick={() => window.open(`${URL}${foto}`, '_blank')}
                                                         />
                                                     ))}
                                                 </div>

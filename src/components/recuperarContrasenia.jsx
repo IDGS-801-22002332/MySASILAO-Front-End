@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { useRecuperacion } from "../context/RecuperacionContext";
 import axios from "axios";
 import "./recuperarContrasenia.css";
+import { useConfig } from "../context/ConfigContext";
 
 const RecuperarContrasenia = () => {
+    const { URL } = useConfig();
     const navigate = useNavigate();
     const { iniciarRecuperacion } = useRecuperacion();
     const [email, setEmail] = useState("");
@@ -20,7 +22,7 @@ const RecuperarContrasenia = () => {
         setSuccess(false);
 
         try {
-            const response = await axios.post("https://mysasilao-back-end-production.up.railway.app/login/forgot-password", {
+            const response = await axios.post(`${URL}/login/forgot-password`, {
                 correo: email
             });
 

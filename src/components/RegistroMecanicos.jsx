@@ -16,10 +16,12 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./registroUsuario.css";
+import { useConfig } from '../context/ConfigContext';
 
-const API_BASE = 'https://mysasilao-back-end-production.up.railway.app';
+
 
 const RegistroMecanicos = () => {
+    const { URL } = useConfig();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState(null);
@@ -40,7 +42,7 @@ const RegistroMecanicos = () => {
         const data = Object.fromEntries(formData.entries());
 
         try {
-            const res = await fetch(`${API_BASE}/login/register`, {
+            const res = await fetch(`${URL}/login/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),

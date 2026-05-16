@@ -6,8 +6,7 @@ import { isInterno } from './authUtils';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './Sucursales.css';
-
-const API_BASE = 'https://mysasilao-back-end-production.up.railway.app/sucursales';
+import { useConfig } from '../context/ConfigContext';
 
 const isAdmin = isInterno();
 
@@ -28,6 +27,7 @@ const emptyForm = {
 };
 
 const Sucursales = () => {
+    const { URL } = useConfig();
 
     const navigate = useNavigate();
 
@@ -44,7 +44,7 @@ const Sucursales = () => {
 
     const fetchSucursales = async () => {
         try {
-            const res = await fetch(API_BASE);
+            const res = await fetch(`${URL}/sucursales`);
             const data = await res.json();
             setSucursales(data);
             if (data.length > 0 && !selectedSucursal) {
@@ -63,7 +63,7 @@ const Sucursales = () => {
         setLoading(true);
         setFormError('');
         try {
-            const res = await fetch(API_BASE, {
+            const res = await fetch(`${URL}/sucursales`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -89,7 +89,7 @@ const Sucursales = () => {
         setLoading(true);
         setFormError('');
         try {
-            const res = await fetch(`${API_BASE}/${editingId}`, {
+            const res = await fetch(`${URL}/sucursales/${editingId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -114,7 +114,7 @@ const Sucursales = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('¿Eliminar esta sucursal?')) return;
         try {
-            const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+            const res = await fetch(`${URL}/sucursales/${id}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
                 if (selectedSucursal?.id === id) {
